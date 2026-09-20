@@ -215,6 +215,8 @@
         </div>
         <canvas id="game" width="1920" height="1080" style="height: 100vh"></canvas>
         <script type="module">
+            // TODO: Consolidate all repeating code into functions
+
             import { Peer } from 'https://cdn.jsdelivr.net/npm/peerjs@1.5.5/+esm'
             
             // UI
@@ -383,12 +385,17 @@
                             const clientFlagData = newHueShiftedFlag(Math.floor((parseInt(conn.peer) - 100000) * 360 / 899999));
                             flagSpriteSheets.push(clientFlagData[0]);
                             hoveredTileColors.push(clientFlagData[1]);
+                            hoveredTiles.push({
+                                i: null,
+                                j: null
+                            });
                         });
 
                         menuWrapper.classList.add("menu-hidden");
                         clientConnections.forEach(conn => {
                             conn.send({ type: "startGame", peerIDs: clientConnectionIDs });
                         });
+
                     }
                     
                 }
@@ -438,40 +445,70 @@
 
             function processServerData(data) {
                 console.log(data);
-                if (data.type == "startGame" && !gameStarted) {
-                    gameStarted = true;
 
-                    menuWrapper.classList.add("menu-hidden");
+                switch (data.type) {
+                    case "startGame":
+                        if (gameStarted) break;
 
-                    peerIDsToIndexDict[peer.id] = 0;
+                        gameStarted = true;
 
-                    const clientFlagData = newHueShiftedFlag(Math.floor((parseInt(serverConnection.peer) - 100000) * 360 / 899999));
-                    flagSpriteSheets.push(clientFlagData[0]);
-                    hoveredTileColors.push(clientFlagData[1]);
-                    peerIDsToIndexDict[serverConnection.peer] = 1;
+                        menuWrapper.classList.add("menu-hidden");
 
-                    data.peerIDs.forEach((peerID, index) => {
-                        if (peerID == peer.id) return;
+                        peerIDsToIndexDict[peer.id] = 0;
 
-                        const clientFlagData = newHueShiftedFlag(Math.floor((parseInt(peerID) - 100000) * 360 / 899999));
+                        const clientFlagData = newHueShiftedFlag(Math.floor((parseInt(serverConnection.peer) - 100000) * 360 / 899999));
                         flagSpriteSheets.push(clientFlagData[0]);
                         hoveredTileColors.push(clientFlagData[1]);
                         hoveredTiles.push({
                             i: null,
                             j: null
                         });
-                        peerIDsToIndexDict[peerID] = hoveredTileColors.length - 1;
-                    });
+                        peerIDsToIndexDict[serverConnection.peer] = 1;
 
-                } else if (data.type == "seed") {
-                    seed = data.seed;
+                        data.peerIDs.forEach((peerID, index) => {
+                            if (peerID == peer.id) return;
 
-                } else if (data.type == "tileRevealed") {
-                    recursiveReveal(data.i, data.j);
-                } else if (data.type == "flagPlanted") {
-                    plantFlag(data.i, data.j, peerIDsToIndexDict[data.peer]);
-                } else if (data.type == "flagRemoved") {
-                    removeFlag(data.i, data.j);
+                            const clientFlagData = newHueShiftedFlag(Math.floor((parseInt(peerID) - 100000) * 360 / 899999));
+                            flagSpriteSheets.push(clientFlagData[0]);
+                            hoveredTileColors.push(clientFlagData[1]);
+                            hoveredTiles.push({
+                                i: null,
+                                j: null
+                            });
+                            peerIDsToIndexDict[peerID] = hoveredTileColors.length - 1;
+                        });
+                        break;
+
+                    case "hoveredTileMoved":
+                        hoveredTiles[peerIDsToIndexDict[data.peer]].i = data.i;
+                        hoveredTiles[peerIDsToIndexDict[data.peer]].j = data.j;
+                        break;
+
+                    case "tileRevealed":
+                        recursiveReveal(data.i, data.j);
+                        break;
+
+                    case "flagPlanted":
+                        plantFlag(data.i, data.j, peerIDsToIndexDict[data.peer]);
+                        break;
+
+                    case "flagRemoved":
+                        removeFlag(data.i, data.j);
+                        break;
+
+                    case "seed":
+                        seed = data.seed;
+
+                        let playUnplantAudio = false;
+
+                        plantedFlags.forEach((map, flagI, _) => {
+                            map.forEach((_, flagJ) => {
+                                removeFlag(flagI, flagJ, true, false);
+                                playUnplantAudio = true;
+                            });
+                        });
+                        if (playUnplantAudio) playAudio(unplantFlagAudioBuffer);
+                        break;
                 }
             }
 
@@ -507,49 +544,74 @@
                             conn.on("open", () => {
                                 conn.on("data", (data) => {
                                     console.log(data);
-                                    if (data.type == "ready") {
-                                        if (conn.ready == true && data.ready == false) readyPlayers--;
-                                        else if (conn.ready == false && data.ready == true) readyPlayers++;
 
-                                        conn.ready = data.ready;
+                                    switch (data.type) {
+                                        case "ready":
+                                            if (conn.ready == true && data.ready == false) readyPlayers--;
+                                            else if (conn.ready == false && data.ready == true) readyPlayers++;
 
-                                        if (readyPlayers == clientConnections.length) {
-                                            playButton.classList.remove("actually-disabled");
-                                            playButton.disabled = false;
-                                        } else {
-                                            playButton.classList.add("actually-disabled");
-                                            playButton.disabled = true;
-                                        }
+                                            conn.ready = data.ready;
 
-                                        readyPlayersDiv.children[readyPlayersDiv.children.length - 1].textContent = `${readyPlayers}/${clientConnections.length}`;
-                                    
-                                    } else if (data.type == "seed") {
-                                        clientConnections.filter(c => c !== conn).forEach(c => c.send({
-                                            type: "seed",
-                                            seed: seed,
-                                        }));
+                                            if (readyPlayers == clientConnections.length) {
+                                                playButton.classList.remove("actually-disabled");
+                                                playButton.disabled = false;
+                                            } else {
+                                                playButton.classList.add("actually-disabled");
+                                                playButton.disabled = true;
+                                            }
 
-                                        seed = data.seed;
+                                            readyPlayersDiv.children[readyPlayersDiv.children.length - 1].textContent = `${readyPlayers}/${clientConnections.length}`;
+                                            break;
 
-                                    } else if (data.type == "revealTile") {
-                                        recursiveReveal(data.i, data.j);
+                                        case "moveHoveredTile":
+                                            clientConnections.filter(c => c !== conn).forEach(c => c.send({
+                                                type: "hoveredTileMoved",
+                                                i: data.i,
+                                                j: data.j,
+                                                peer: conn.peer
+                                            }));
 
-                                    } else if (data.type == "plantFlag") {
-                                        if (checkIfTileRevealed(data.i, data.j)) return;
+                                            hoveredTiles[peerIDsToIndexDict[conn.peer]].i = data.i;
+                                            hoveredTiles[peerIDsToIndexDict[conn.peer]].j = data.j;
+                                            break;
 
-                                        clientConnections.forEach(c => c.send({
-                                            type: "flagPlanted",
-                                            peer: conn.peer,
-                                            i: data.i,
-                                            j: data.j
-                                        }));
+                                        case "revealTile":
+                                            recursiveReveal(data.i, data.j);
+                                            break;
 
-                                        plantFlag(data.i, data.j, peerIDsToIndexDict[conn.peer], false);
+                                        case "plantFlag":
+                                            if (checkIfTileRevealed(data.i, data.j)) break;
 
-                                    } else if (data.type == "removeFlag") {
-                                        if (checkIfFlagPlanted(data.i, data.j) === false) return;
+                                            clientConnections.forEach(c => c.send({
+                                                type: "flagPlanted",
+                                                peer: conn.peer,
+                                                i: data.i,
+                                                j: data.j
+                                            }));
 
-                                        removeFlag(data.i, data.j, false);
+                                            plantFlag(data.i, data.j, peerIDsToIndexDict[conn.peer], false);
+                                            break;
+
+                                        case "removeFlag":
+                                            if (checkIfFlagPlanted(data.i, data.j) === false) break;
+
+                                            removeFlag(data.i, data.j, false);
+                                            break;
+
+                                        case "seed":
+                                            clientConnections.filter(c => c !== conn).forEach(c => c.send({
+                                                type: "seed",
+                                                seed: seed,
+                                            }));
+
+                                            seed = data.seed;
+                                            plantedFlags.forEach((map, flagI, _) => {
+                                                map.forEach((_, flagJ) => {
+                                                    removeFlag(flagI, flagJ, true, false);
+                                                });
+                                            });
+                                            playAudio(unplantFlagAudioBuffer);
+                                            break;
                                     }
                                 });
                             });
@@ -611,8 +673,10 @@
                 x: 0,
                 y: 0
             };
+
             let mouseDown = false;
             let touchHeldTimeoutID = null;
+            let touchHoldInputted = false;
 
             let hoveredTile = {
                 i: null,
@@ -761,7 +825,6 @@
 
             function recursiveReveal(i, j, recursed = false) {
                 if (checkIfTileRevealed(i, j) || checkIfFlagPlanted(i, j) !== false || checkIfMineRevealed(i, j)) { return }
-
                 if (!recursed && hosting) {
                     clientConnections.forEach(conn => conn.send({
                         type: "tileRevealed",
@@ -893,10 +956,10 @@
                 });
             }
 
-            function removeFlag(i, j, silent = false) {
+            function removeFlag(i, j, silent = false, sendToPeers = true) {
                 if (checkIfFlagPlanted(i, j) === false) return;
 
-                if (hosting) {
+                if (hosting && sendToPeers) {
                     clientConnections.forEach(c => c.send({
                         type: "flagRemoved",
                         peer: peer.id,
@@ -917,6 +980,7 @@
                 }
 
                 incorrectFlags.get(i).add(j);
+                console.log(incorrectFlags);
             }
 
             function checkIfIncorrectFlag(i, j) {
@@ -936,7 +1000,7 @@
             }
 
             function checkIfMineAt(i, j) {
-                return hash(`${i}+${j}`) < 0.15;
+                return hash(`${i}+${j}`) < 0.2;
             }
 
             function countAdjacentMines(i, j) {
@@ -960,8 +1024,6 @@
             }
 
             function generateSeedFromClickAt(i, j) {
-                if (checkIfFlagPlanted(i, j) !== false) { return; }
-
                 for (let _ = 0; _ < 3000; _++) {
                     let fail = false;
 
@@ -978,11 +1040,15 @@
                     if (!fail) {break;}
                 }
 
-                plantedFlags.forEach((set, flagI, _) => {
-                    set.forEach((flagJ) => {
-                        removeFlag(flagI, flagJ);
+                let playUnplantAudio = false;
+
+                plantedFlags.forEach((map, flagI, _) => {
+                    map.forEach((_, flagJ) => {
+                        removeFlag(flagI, flagJ, true, false);
+                        playUnplantAudio = true;
                     });
                 });
+                if (playUnplantAudio) playAudio(unplantFlagAudioBuffer);
             }
             
             function hash(str) {
@@ -1064,8 +1130,10 @@
             }
 
             function checkIfTileHovered(i, j) {
-                for (let index; index < hoveredTiles.length; index++) {
-                    if (hoveredTiles.i == i && hoveredTiles.j == j) return index;
+                if (dead) return false;
+
+                for (let index = 0; index < hoveredTiles.length; index++) {
+                    if (hoveredTiles[index].i == i && hoveredTiles[index].j == j) return index;
                 }
 
                 return false;
@@ -1294,9 +1362,11 @@
                                 ctx.fillRect(i * 45 - cameraCenter.x, j * 45 - cameraCenter.y, 45, 45);
 
                                 if (checkIfFlagPlanted(i, j) !== false) {
-                                    if (hoveredTile.i == i && hoveredTile.j == j) {
-                                        ctx.fillStyle = "rgb(255, 255, 255, 0.25)";
-                                        ctx.fillRect(hoveredTile.i * 45 - cameraCenter.x, hoveredTile.j * 45 - cameraCenter.y, 45, 45);
+                                    const hoveredTileHere = checkIfTileHovered(i, j);
+
+                                    if (hoveredTileHere !== false) {
+                                        ctx.fillStyle = hoveredTileColors[hoveredTileHere];
+                                        ctx.fillRect(i * 45 - cameraCenter.x, j * 45 - cameraCenter.y, 45, 45);
                                     }
 
                                     if (checkIfFlagAnimating(i, j) === false) {
@@ -1327,9 +1397,11 @@
                             }
                             ctx.fillRect(i * 45 - cameraCenter.x, j * 45 - cameraCenter.y, 45, 45);
                             // Add hoveredTile outline before border, number
-                            if (hoveredTile.i == i && hoveredTile.j == j && adjacentMines != 0) {
-                                ctx.fillStyle = "rgb(255, 255, 255, 0.25)";
-                                ctx.fillRect(hoveredTile.i * 45 - cameraCenter.x, hoveredTile.j * 45 - cameraCenter.y, 45, 45);
+                            const hoveredTileHere = checkIfTileHovered(i, j);
+
+                            if (hoveredTileHere !== false && adjacentMines != 0) {
+                                ctx.fillStyle = hoveredTileColors[hoveredTileHere];
+                                ctx.fillRect(i * 45 - cameraCenter.x, j * 45 - cameraCenter.y, 45, 45);
                             }
 
                             ctx.fillStyle = "#87af3a";
@@ -1376,11 +1448,20 @@
                         }
 
                     }
-                }                
-
-                if (hoveredTile.i != null && !checkIfTileRevealed(hoveredTile.i, hoveredTile.j) && !checkIfMineRevealed(hoveredTile.i, hoveredTile.j) && checkIfFlagPlanted(hoveredTile.i, hoveredTile.j) === false) {
-                    ctx.fillStyle = "rgb(255, 255, 255, 0.25)";
-                    ctx.fillRect(hoveredTile.i * 45 - cameraCenter.x, hoveredTile.j * 45 - cameraCenter.y, 45, 45);
+                }
+                
+                if (!client && !hosting) {
+                    if (hoveredTile.i != null && !checkIfTileRevealed(hoveredTile.i, hoveredTile.j) && !checkIfMineRevealed(hoveredTile.i, hoveredTile.j) && checkIfFlagPlanted(hoveredTile.i, hoveredTile.j) === false) {
+                        ctx.fillStyle = "rgb(255, 255, 255, 0.25)";
+                        ctx.fillRect(hoveredTile.i * 45 - cameraCenter.x, hoveredTile.j * 45 - cameraCenter.y, 45, 45);
+                    }
+                } else if (!dead) {
+                    hoveredTiles.forEach((hTile, index) => {
+                        if (hTile.i != null && !checkIfTileRevealed(hTile.i, hTile.j) && !checkIfMineRevealed(hTile.i, hTile.j) && checkIfFlagPlanted(hTile.i, hTile.j) === false) {
+                            ctx.fillStyle = hoveredTileColors[index];
+                            ctx.fillRect(hTile.i * 45 - cameraCenter.x, hTile.j * 45 - cameraCenter.y, 45, 45);
+                        }
+                    });
                 }
 
                 // Animations!
@@ -1408,7 +1489,7 @@
                         plantedFlags.forEach((map, flagI, _) => {
                             map.forEach((_, flagJ) => {
                                 if (!checkIfMineAt(flagI, flagJ)) {
-                                    removeFlag(flagI, flagJ, true);
+                                    removeFlag(flagI, flagJ, true, false);
                                     addIncorrectFlag(flagI, flagJ);
                                     if (!bombageddonIncorrectFlagSoundPlayed) {
                                         playAudio(unplantFlagAudioBuffer);
@@ -1470,6 +1551,8 @@
             });
 
             canvas.addEventListener("touchstart", (event) => {
+                event.preventDefault();
+
                 const touch = event.touches[0] || event.changedTouches[0];
                 const rect = event.target.getBoundingClientRect();
                 const offsetX = touch.clientX - rect.left;
@@ -1478,6 +1561,7 @@
                 if (!dead) {
                     hoveredTile.i = Math.floor((offsetX * canvas.width / canvas.clientWidth + cameraCenter.x) / 45);
                     hoveredTile.j = Math.floor((offsetY * canvas.height / canvas.clientHeight + cameraCenter.y) / 45);
+                    
                     touchHeldTimeoutID = setTimeout(() => {
                         if (!checkIfTileRevealed(hoveredTile.i, hoveredTile.j) && !checkIfMineRevealed(hoveredTile.i, hoveredTile.j)) {
                             if (checkIfFlagPlanted(hoveredTile.i, hoveredTile.j) === false) {
@@ -1488,7 +1572,25 @@
                                 else sendRemoveFlag(hoveredTile.i, hoveredTile.j);
                             }
                         }
-                    }, 500);
+
+                        touchHoldInputted = true;
+                        touchHeldTimeoutID = null;
+                    }, 250);
+
+                    if (hosting) {
+                        clientConnections.forEach(c => c.send({
+                            type: "hoveredTileMoved",
+                            i: hoveredTile.i,
+                            j: hoveredTile.j,
+                            peer: peer.id
+                        }));
+                    } else if (client) {
+                        serverConnection.send({
+                            type: "moveHoveredTile",
+                            i: hoveredTile.i,
+                            j: hoveredTile.j
+                        });
+                    }
                 }
 
                 mousePosition.x = offsetX;
@@ -1505,8 +1607,28 @@
                 // Set hovered tile, pan
                 if (!(document.fullscreenElement == canvas)) {
                     if (!dead) {
-                        hoveredTile.i = Math.floor((event.offsetX * canvas.width / canvas.clientWidth + cameraCenter.x) / 45);
-                        hoveredTile.j = Math.floor((event.offsetY * canvas.height / canvas.clientHeight + cameraCenter.y) / 45);
+                        const potentialHoveredTileI = Math.floor((event.offsetX * canvas.width / canvas.clientWidth + cameraCenter.x) / 45);
+                        const potentialHoveredTileJ = Math.floor((event.offsetY * canvas.height / canvas.clientHeight + cameraCenter.y) / 45);
+                    
+                        if (potentialHoveredTileI != hoveredTile.i || potentialHoveredTileJ != hoveredTile.j) {
+                            hoveredTile.i = potentialHoveredTileI
+                            hoveredTile.j = potentialHoveredTileJ;
+
+                            if (hosting) {
+                                clientConnections.forEach(c => c.send({
+                                    type: "hoveredTileMoved",
+                                    i: hoveredTile.i,
+                                    j: hoveredTile.j,
+                                    peer: peer.id
+                                }));
+                            } else if (client) {
+                                serverConnection.send({
+                                    type: "moveHoveredTile",
+                                    i: hoveredTile.i,
+                                    j: hoveredTile.j
+                                });
+                            }
+                        }
                     }
                     
                     if (mouseDown) {
@@ -1516,8 +1638,28 @@
                 } else {
                     const fullscreenDimensions = getFullscreenDimensions();
                     if (!dead) {
-                        hoveredTile.i = Math.floor(((event.offsetX - fullscreenDimensions.pillarBoxWidth) * canvas.width / fullscreenDimensions.width + cameraCenter.x) / 45);
-                        hoveredTile.j = Math.floor(((event.offsetY - fullscreenDimensions.letterBoxHeight) * canvas.height / fullscreenDimensions.height + cameraCenter.y) / 45);
+                        const potentialHoveredTileI = Math.floor(((event.offsetX - fullscreenDimensions.pillarBoxWidth) * canvas.width / fullscreenDimensions.width + cameraCenter.x) / 45);
+                        const potentialHoveredTileJ = Math.floor(((event.offsetY - fullscreenDimensions.letterBoxHeight) * canvas.height / fullscreenDimensions.height + cameraCenter.y) / 45);
+                        
+                        if (potentialHoveredTileI != hoveredTile.i || potentialHoveredTileJ != hoveredTile.j) {
+                            hoveredTile.i = potentialHoveredTileI
+                            hoveredTile.j = potentialHoveredTileJ;
+
+                            if (hosting) {
+                                clientConnections.forEach(c => c.send({
+                                    type: "hoveredTileMoved",
+                                    i: hoveredTile.i,
+                                    j: hoveredTile.j,
+                                    peer: peer.id
+                                }));
+                            } else if (client) {
+                                serverConnection.send({
+                                    type: "moveHoveredTile",
+                                    i: hoveredTile.i,
+                                    j: hoveredTile.j
+                                });
+                            }
+                        }
                     }
 
                     if (mouseDown) {
@@ -1528,6 +1670,8 @@
             });
 
             canvas.addEventListener("touchmove", (event) => {
+                event.preventDefault();
+
                 const touch = event.touches[0] || event.changedTouches[0];
                 const rect = event.target.getBoundingClientRect();
                 const offsetX = touch.clientX - rect.left;
@@ -1541,8 +1685,28 @@
                 // Set hovered tile, pan
                 if (!(document.fullscreenElement == canvas)) {
                     if (!dead) {
-                        hoveredTile.i = Math.floor((offsetX * canvas.width / canvas.clientWidth + cameraCenter.x) / 45);
-                        hoveredTile.j = Math.floor((offsetY * canvas.height / canvas.clientHeight + cameraCenter.y) / 45);
+                        const potentialHoveredTileI = Math.floor((offsetX * canvas.width / canvas.clientWidth + cameraCenter.x) / 45);
+                        const potentialHoveredTileJ = Math.floor((offsetY * canvas.height / canvas.clientHeight + cameraCenter.y) / 45);
+                    
+                        if (potentialHoveredTileI != hoveredTile.i || potentialHoveredTileJ != hoveredTile.j) {
+                            hoveredTile.i = potentialHoveredTileI
+                            hoveredTile.j = potentialHoveredTileJ;
+
+                            if (hosting) {
+                                clientConnections.forEach(c => c.send({
+                                    type: "hoveredTileMoved",
+                                    i: hoveredTile.i,
+                                    j: hoveredTile.j,
+                                    peer: peer.id
+                                }));
+                            } else if (client) {
+                                serverConnection.send({
+                                    type: "moveHoveredTile",
+                                    i: hoveredTile.i,
+                                    j: hoveredTile.j
+                                });
+                            }
+                        }
                     }
                     
                     if (mouseDown) {
@@ -1552,8 +1716,28 @@
                 } else {
                     const fullscreenDimensions = getFullscreenDimensions();
                     if (!dead) {
-                        hoveredTile.i = Math.floor(((offsetX - fullscreenDimensions.pillarBoxWidth) * canvas.width / fullscreenDimensions.width + cameraCenter.x) / 45);
-                        hoveredTile.j = Math.floor(((offsetY - fullscreenDimensions.letterBoxHeight) * canvas.height / fullscreenDimensions.height + cameraCenter.y) / 45);
+                        const potentialHoveredTileI = Math.floor(((offsetX - fullscreenDimensions.pillarBoxWidth) * canvas.width / fullscreenDimensions.width + cameraCenter.x) / 45);
+                        const potentialHoveredTileJ = Math.floor(((offsetY - fullscreenDimensions.letterBoxHeight) * canvas.height / fullscreenDimensions.height + cameraCenter.y) / 45);
+                        
+                        if (potentialHoveredTileI != hoveredTile.i || potentialHoveredTileJ != hoveredTile.j) {
+                            hoveredTile.i = potentialHoveredTileI
+                            hoveredTile.j = potentialHoveredTileJ;
+
+                            if (hosting) {
+                                clientConnections.forEach(c => c.send({
+                                    type: "hoveredTileMoved",
+                                    i: hoveredTile.i,
+                                    j: hoveredTile.j,
+                                    peer: peer.id
+                                }));
+                            } else if (client) {
+                                serverConnection.send({
+                                    type: "moveHoveredTile",
+                                    i: hoveredTile.i,
+                                    j: hoveredTile.j
+                                });
+                            }
+                        }
                     }
 
                     if (mouseDown) {
@@ -1564,12 +1748,15 @@
             });
 
             canvas.addEventListener("mouseup", (event) => {
+                mouseDown = false;
+
+                if (checkIfFlagPlanted(hoveredTile.i, hoveredTile.j) !== false) return;
+
                 if (event.button == 0) {
                     if (Math.abs(event.offsetX - mousePosition.x) < 5 && Math.abs(event.offsetY - mousePosition.y) < 5 && hoveredTile.i !== null) {
                         // Click
                         if (seed == undefined) {
                             generateSeedFromClickAt(hoveredTile.i, hoveredTile.j);
-
                             if (client) {
                                 serverConnection.send({
                                     type: "seed",
@@ -1590,23 +1777,30 @@
                         if (!client) recursiveReveal(hoveredTile.i, hoveredTile.j);
                         else sendRecursiveReveal(hoveredTile.i, hoveredTile.j);
                     }
-
-                    mouseDown = false;
                 }
             });
 
             canvas.addEventListener("touchend", (event) => {
-                const touch = event.touches[0] || event.changedTouches[0];
-                const rect = event.target.getBoundingClientRect();
-                const offsetX = touch.clientX - rect.left;
-                const offsetY = touch.clientY - rect.top;
+                event.preventDefault();
+
+                mouseDown = false;
 
                 if (touchHeldTimeoutID !== null) {
                     clearTimeout(touchHeldTimeoutID);
                     touchHeldTimeoutID = null;
                 }
 
-                if (checkIfFlagPlanted(hoveredTile.i, hoveredTile.j) == false) return;
+                if (touchHoldInputted) {
+                    touchHoldInputted = false;
+                    return;
+                }
+
+                if (checkIfFlagPlanted(hoveredTile.i, hoveredTile.j) !== false) return;
+
+                const touch = event.touches[0] || event.changedTouches[0];
+                const rect = event.target.getBoundingClientRect();
+                const offsetX = touch.clientX - rect.left;
+                const offsetY = touch.clientY - rect.top;
 
                 if (Math.abs(offsetX - mousePosition.x) < 5 && Math.abs(offsetY - mousePosition.y) < 5 && hoveredTile.i !== null) {
                     // Click
@@ -1633,13 +1827,12 @@
                     if (!client) recursiveReveal(hoveredTile.i, hoveredTile.j);
                     else sendRecursiveReveal(hoveredTile.i, hoveredTile.j);
                 }
-
-                mouseDown = false;
             });
 
             canvas.addEventListener("mouseleave", (ev) => hoveredTile.i = null);
             canvas.addEventListener("touchcancel", (ev) => {
                 hoveredTile.i = null;
+                touchHoldInputted = false;
  
                 if (touchHeldTimeoutID !== null) {
                     clearTimeout(touchHeldTimeoutID);
