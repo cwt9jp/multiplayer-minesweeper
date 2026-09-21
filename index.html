@@ -678,7 +678,12 @@
 
             let mouseDown = false;
             let touchHeldTimeoutID = null;
+
             let touchHoldInputted = false;
+            let touchPosition = {
+                x: 0,
+                y: 0
+            }
 
             let hoveredTile = {
                 i: null,
@@ -1567,6 +1572,8 @@
                     hoveredTile.j = Math.floor((offsetY * canvas.height / canvas.clientHeight + cameraCenter.y) / 45);
                     
                     touchHeldTimeoutID = setTimeout(() => {
+                        if (!(Math.abs(touchPosition.x - mousePosition.x) < 5 && Math.abs(touchPosition.y - mousePosition.y) < 5 && hoveredTile.i !== null)) return;
+                        
                         if (!checkIfTileRevealed(hoveredTile.i, hoveredTile.j) && !checkIfMineRevealed(hoveredTile.i, hoveredTile.j)) {
                             if (checkIfFlagPlanted(hoveredTile.i, hoveredTile.j) === false) {
                                 if (!client) plantFlag(hoveredTile.i, hoveredTile.j);
@@ -1599,6 +1606,10 @@
 
                 mousePosition.x = offsetX;
                 mousePosition.y = offsetY;
+
+                touchPosition.x = offsetX;
+                touchPosition.y = offsetY;
+
                 previousCameraCenter.x = cameraCenter.x;
                 previousCameraCenter.y = cameraCenter.y;
 
@@ -1681,10 +1692,8 @@
                 const offsetX = touch.clientX - rect.left;
                 const offsetY = touch.clientY - rect.top;
 
-                if (touchHeldTimeoutID !== null) {
-                    clearTimeout(touchHeldTimeoutID);
-                    touchHeldTimeoutID = null;
-                }
+                touchPosition.x = offsetX;
+                touchPosition.y = offsetY;
 
                 // Set hovered tile, pan
                 if (!(document.fullscreenElement == canvas)) {
