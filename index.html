@@ -382,7 +382,7 @@
                             clientConnectionIDs.push(conn.peer);
                             peerIDsToIndexDict[conn.peer] = index + 1;
 
-                            const clientFlagData = newHueShiftedFlag(Math.floor((parseInt(conn.peer) - 100000) * 360 / 899999));
+                            const clientFlagData = newHueShiftedFlag(conn.peer);
                             flagSpriteSheets.push(clientFlagData[0]);
                             hoveredTileColors.push(clientFlagData[1]);
                             hoveredTiles.push({
@@ -456,7 +456,7 @@
 
                         peerIDsToIndexDict[peer.id] = 0;
 
-                        const clientFlagData = newHueShiftedFlag(Math.floor((parseInt(serverConnection.peer) - 100000) * 360 / 899999));
+                        const clientFlagData = newHueShiftedFlag(serverConnection.peer);
                         flagSpriteSheets.push(clientFlagData[0]);
                         hoveredTileColors.push(clientFlagData[1]);
                         hoveredTiles.push({
@@ -468,7 +468,7 @@
                         data.peerIDs.forEach((peerID, index) => {
                             if (peerID == peer.id) return;
 
-                            const clientFlagData = newHueShiftedFlag(Math.floor((parseInt(peerID) - 100000) * 360 / 899999));
+                            const clientFlagData = newHueShiftedFlag(peerID);
                             flagSpriteSheets.push(clientFlagData[0]);
                             hoveredTileColors.push(clientFlagData[1]);
                             hoveredTiles.push({
@@ -599,9 +599,11 @@
                                             break;
 
                                         case "seed":
-                                            clientConnections.filter(c => c !== conn).forEach(c => c.send({
+                                            if (seed !== undefined) break;
+
+                                            clientConnections.forEach(c => c.send({
                                                 type: "seed",
-                                                seed: seed,
+                                                seed: data.seed,
                                             }));
 
                                             seed = data.seed;
@@ -743,7 +745,9 @@
             const hueChangeCanvas = document.createElement('canvas');
             const hueChangeCTX = hueChangeCanvas.getContext('2d', { willReadFrequently: true });
 
-            function newHueShiftedFlag(degree) {
+            function newHueShiftedFlag(id) {
+                const degree = Math.floor((parseInt(id) - 100000) * 320 / 899999 + 20);
+
                 hueChangeCanvas.width = flagPlantSpriteSheet.width;
                 hueChangeCanvas.height = flagPlantSpriteSheet.height;
 
@@ -1757,11 +1761,13 @@
                         // Click
                         if (seed == undefined) {
                             generateSeedFromClickAt(hoveredTile.i, hoveredTile.j);
+
                             if (client) {
                                 serverConnection.send({
                                     type: "seed",
                                     seed: seed,
                                 });
+                                seed = undefined;
                             } else if (hosting) {
                                 clientConnections.forEach(conn => conn.send({
                                     type: "seed",
