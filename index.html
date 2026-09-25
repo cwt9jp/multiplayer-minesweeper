@@ -213,9 +213,11 @@
             </div>
 
         </div>
-        <canvas id="game" width="1920" height="1080" style="height: 100vh"></canvas>
+        <canvas id="game" width="1920" height="1080" style="height: 100vh; overflow: hidden"></canvas>
         <script type="module">
             // TODO: Consolidate all repeating code into functions
+            // TODO: Zoom on mobile (midpoint between touches is always halfway between touches), and change in distance between touches determines scale factor
+            // TODO: Differentiate between touches (which touch was to zoom, which was to place/dig)
 
             import { Peer } from 'https://cdn.jsdelivr.net/npm/peerjs@1.5.5/+esm'
             
@@ -665,22 +667,34 @@
                 cameraCenter.y = Math.round(gameSize.tileHeight * 45 / 2);
             }
 
-            let previousCameraCenter = {
+            let initialCameraCenter = {
                 x: 0,
                 y: 0
             };
 
             // Page coordinates
-            let mousePosition = {
+            let initialInputPosition = {
                 x: 0,
                 y: 0
             };
 
+            let currentMouseGamePosition = {
+                x: 0,
+                y: 0
+            }
+
             let mouseDown = false;
+            let clickRevealsTile = false;
             let touchHeldTimeoutID = null;
 
             let touchHoldInputted = false;
-            let touchPosition = {
+            let mainTouchID = null;
+            let zoomTouchID = null;
+            let mainTouchPosition = {
+                x: 0,
+                y: 0
+            }
+            let zoomTouchPosition = {
                 x: 0,
                 y: 0
             }
@@ -689,6 +703,8 @@
                 i: null,
                 j: null
             };
+
+            let scaleFactor = 1.5;
 
             const revealedTiles = new Map();
             const revealedMines = new Map();
@@ -989,7 +1005,6 @@
                 }
 
                 incorrectFlags.get(i).add(j);
-                console.log(incorrectFlags);
             }
 
             function checkIfIncorrectFlag(i, j) {
@@ -1107,13 +1122,13 @@
                 if (gameSize.tileWidth < 1.5 * window.innerWidth / 45) {
                     canvas.width = 45 * gameSize.tileWidth;
                 } else {
-                    canvas.width = 1.5 * window.innerWidth;
+                    canvas.width = scaleFactor * window.innerWidth;
                 }
 
                 if (gameSize.tileHeight < 1.5 * window.innerHeight / 45) {
                     canvas.height = 45 * gameSize.tileHeight;
                 } else {
-                    canvas.height = 1.5 * window.innerHeight;
+                    canvas.height = scaleFactor * window.innerHeight;
                 }
 
                 ctx.font = "bold 37px Roboto, Arial, sans-serif";
@@ -1146,6 +1161,10 @@
                 }
 
                 return false;
+            }
+
+            function touchZoom() {
+
             }
 
             class FallingTile {
@@ -1538,15 +1557,17 @@
                     hoveredTile.j = Math.floor((event.offsetY * canvas.height / canvas.clientHeight + cameraCenter.y) / 45);
                 }
 
-                if (event.button == 0) {
-                    mousePosition.x = event.offsetX;
-                    mousePosition.y = event.offsetY;
-                    previousCameraCenter.x = cameraCenter.x;
-                    previousCameraCenter.y = cameraCenter.y;
+                if (event.button == 0 && !event.ctrlKey) {
+                    clickRevealsTile = true;
+
+                    initialInputPosition.x = event.offsetX;
+                    initialInputPosition.y = event.offsetY;
+                    initialCameraCenter.x = cameraCenter.x;
+                    initialCameraCenter.y = cameraCenter.y;
                     if (gameSize.tileWidth > 42 || gameSize.tileHeight > 24) {
                         mouseDown = true;
                     }
-                } else if (event.button == 2 && hoveredTile.i !== null) {
+                } else if ((event.button == 2 && hoveredTile.i !== null) || (event.ctrlKey && event.button == 0)) {
                     if (!checkIfTileRevealed(hoveredTile.i, hoveredTile.j) && !checkIfMineRevealed(hoveredTile.i, hoveredTile.j)) {
                         if (checkIfFlagPlanted(hoveredTile.i, hoveredTile.j) === false) {
                             if (!client) plantFlag(hoveredTile.i, hoveredTile.j);
@@ -1562,7 +1583,14 @@
             canvas.addEventListener("touchstart", (event) => {
                 event.preventDefault();
 
-                const touch = event.touches[0] || event.changedTouches[0];
+                const touch = event.changedTouches[0];
+                if (mainTouchID == null) mainTouchID = touch.identifier;
+                else if (zoomTouchID == null) {
+                    zoomTouchID = touch.identifier;
+                    return;
+                }
+                else return;
+
                 const rect = event.target.getBoundingClientRect();
                 const offsetX = touch.clientX - rect.left;
                 const offsetY = touch.clientY - rect.top;
@@ -1572,7 +1600,7 @@
                     hoveredTile.j = Math.floor((offsetY * canvas.height / canvas.clientHeight + cameraCenter.y) / 45);
                     
                     touchHeldTimeoutID = setTimeout(() => {
-                        if (!(Math.abs(touchPosition.x - mousePosition.x) < 5 && Math.abs(touchPosition.y - mousePosition.y) < 5 && hoveredTile.i !== null)) return;
+                        if (!(Math.abs(mainTouchPosition.x - initialInputPosition.x) < 5 && Math.abs(mainTouchPosition.y - initialInputPosition.y) < 5 && hoveredTile.i !== null)) return;
                         
                         if (!checkIfTileRevealed(hoveredTile.i, hoveredTile.j) && !checkIfMineRevealed(hoveredTile.i, hoveredTile.j)) {
                             if (checkIfFlagPlanted(hoveredTile.i, hoveredTile.j) === false) {
@@ -1604,14 +1632,14 @@
                     }
                 }
 
-                mousePosition.x = offsetX;
-                mousePosition.y = offsetY;
+                initialInputPosition.x = offsetX;
+                initialInputPosition.y = offsetY;
 
-                touchPosition.x = offsetX;
-                touchPosition.y = offsetY;
+                mainTouchPosition.x = offsetX;
+                mainTouchPosition.y = offsetY;
 
-                previousCameraCenter.x = cameraCenter.x;
-                previousCameraCenter.y = cameraCenter.y;
+                initialCameraCenter.x = cameraCenter.x;
+                initialCameraCenter.y = cameraCenter.y;
 
                 if (gameSize.tileWidth > 42 || gameSize.tileHeight > 24) {
                     mouseDown = true;
@@ -1621,9 +1649,12 @@
             canvas.addEventListener("mousemove", (event) => {
                 // Set hovered tile, pan
                 if (!(document.fullscreenElement == canvas)) {
+                    currentMouseGamePosition.x = (event.offsetX * canvas.width / canvas.clientWidth + cameraCenter.x);
+                    currentMouseGamePosition.y = (event.offsetY * canvas.height / canvas.clientHeight + cameraCenter.y);
+                    
                     if (!dead) {
-                        const potentialHoveredTileI = Math.floor((event.offsetX * canvas.width / canvas.clientWidth + cameraCenter.x) / 45);
-                        const potentialHoveredTileJ = Math.floor((event.offsetY * canvas.height / canvas.clientHeight + cameraCenter.y) / 45);
+                        const potentialHoveredTileI = Math.floor(currentMouseGamePosition.x / 45);
+                        const potentialHoveredTileJ = Math.floor(currentMouseGamePosition.y / 45);
                     
                         if (potentialHoveredTileI != hoveredTile.i || potentialHoveredTileJ != hoveredTile.j) {
                             hoveredTile.i = potentialHoveredTileI
@@ -1647,14 +1678,21 @@
                     }
                     
                     if (mouseDown) {
-                        if (gameSize.tileWidth > 42) { cameraCenter.x = Math.round(previousCameraCenter.x - canvas.width * (event.offsetX - mousePosition.x) / canvas.clientWidth); }
-                        if (gameSize.tileHeight > 24) { cameraCenter.y = Math.round(previousCameraCenter.y - canvas.height * (event.offsetY - mousePosition.y) / canvas.clientHeight); }
+                        if (gameSize.tileWidth > 42) { cameraCenter.x = Math.round(initialCameraCenter.x - canvas.width * (event.offsetX - initialInputPosition.x) / canvas.clientWidth); }
+                        if (gameSize.tileHeight > 24) { cameraCenter.y = Math.round(initialCameraCenter.y - canvas.height * (event.offsetY - initialInputPosition.y) / canvas.clientHeight); }
+
+                        if ((Math.abs(currentMouseGamePosition.x - initialInputPosition.x) > 5 || Math.abs(currentMouseGamePosition.y - initialInputPosition.y) > 5)) {
+                            clickRevealsTile = false;
+                        }
                     }
                 } else {
                     const fullscreenDimensions = getFullscreenDimensions();
+                    currentMouseGamePosition.x = ((event.offsetX - fullscreenDimensions.pillarBoxWidth) * canvas.width / fullscreenDimensions.width + cameraCenter.x)
+                    currentMouseGamePosition.y = ((event.offsetY - fullscreenDimensions.letterBoxHeight) * canvas.height / fullscreenDimensions.height + cameraCenter.y);
+
                     if (!dead) {
-                        const potentialHoveredTileI = Math.floor(((event.offsetX - fullscreenDimensions.pillarBoxWidth) * canvas.width / fullscreenDimensions.width + cameraCenter.x) / 45);
-                        const potentialHoveredTileJ = Math.floor(((event.offsetY - fullscreenDimensions.letterBoxHeight) * canvas.height / fullscreenDimensions.height + cameraCenter.y) / 45);
+                        const potentialHoveredTileI = Math.floor(currentMouseGamePosition.x / 45);
+                        const potentialHoveredTileJ = Math.floor(currentMouseGamePosition.y / 45);
                         
                         if (potentialHoveredTileI != hoveredTile.i || potentialHoveredTileJ != hoveredTile.j) {
                             hoveredTile.i = potentialHoveredTileI
@@ -1678,8 +1716,8 @@
                     }
 
                     if (mouseDown) {
-                        if (gameSize.tileWidth > 42) { cameraCenter.x = Math.round(previousCameraCenter.x - canvas.width * (event.offsetX - mousePosition.x) / fullscreenDimensions.width); }
-                        if (gameSize.tileHeight > 24) { cameraCenter.y = Math.round(previousCameraCenter.y - canvas.height * (event.offsetY - mousePosition.y) / fullscreenDimensions.height); }
+                        if (gameSize.tileWidth > 42) { cameraCenter.x = Math.round(initialCameraCenter.x - canvas.width * (event.offsetX - initialInputPosition.x) / fullscreenDimensions.width); }
+                        if (gameSize.tileHeight > 24) { cameraCenter.y = Math.round(initialCameraCenter.y - canvas.height * (event.offsetY - initialInputPosition.y) / fullscreenDimensions.height); }
                     }
                 }
             });
@@ -1687,75 +1725,90 @@
             canvas.addEventListener("touchmove", (event) => {
                 event.preventDefault();
 
-                const touch = event.touches[0] || event.changedTouches[0];
+                const touch = event.changedTouches[0];
                 const rect = event.target.getBoundingClientRect();
                 const offsetX = touch.clientX - rect.left;
                 const offsetY = touch.clientY - rect.top;
 
-                touchPosition.x = offsetX;
-                touchPosition.y = offsetY;
+                if (touch.identifier == mainTouchID) {
+                    mainTouchPosition.x = offsetX;
+                    mainTouchPosition.y = offsetY;
 
-                // Set hovered tile, pan
-                if (!(document.fullscreenElement == canvas)) {
-                    if (!dead) {
-                        const potentialHoveredTileI = Math.floor((offsetX * canvas.width / canvas.clientWidth + cameraCenter.x) / 45);
-                        const potentialHoveredTileJ = Math.floor((offsetY * canvas.height / canvas.clientHeight + cameraCenter.y) / 45);
-                    
-                        if (potentialHoveredTileI != hoveredTile.i || potentialHoveredTileJ != hoveredTile.j) {
-                            hoveredTile.i = potentialHoveredTileI
-                            hoveredTile.j = potentialHoveredTileJ;
+                    if (touchHeldTimeoutID !== false && ((Math.abs(mainTouchPosition.x - initialInputPosition.x) > 5 || Math.abs(mainTouchPosition.y - initialInputPosition.y) > 5 || hoveredTile.i !== null))) {
+                        clearTimeout(touchHeldTimeoutID);
+                        touchHeldTimeoutID = false;
+                    }
 
-                            if (hosting) {
-                                clientConnections.forEach(c => c.send({
-                                    type: "hoveredTileMoved",
-                                    i: hoveredTile.i,
-                                    j: hoveredTile.j,
-                                    peer: peer.id
-                                }));
-                            } else if (client) {
-                                serverConnection.send({
-                                    type: "moveHoveredTile",
-                                    i: hoveredTile.i,
-                                    j: hoveredTile.j
-                                });
-                            }
-                        }
-                    }
-                    
-                    if (mouseDown) {
-                        if (gameSize.tileWidth > 42) { cameraCenter.x = Math.round(previousCameraCenter.x - canvas.width * (offsetX - mousePosition.x) / canvas.clientWidth); }
-                        if (gameSize.tileHeight > 24) { cameraCenter.y = Math.round(previousCameraCenter.y - canvas.height * (offsetY - mousePosition.y) / canvas.clientHeight); }
-                    }
-                } else {
-                    const fullscreenDimensions = getFullscreenDimensions();
-                    if (!dead) {
-                        const potentialHoveredTileI = Math.floor(((offsetX - fullscreenDimensions.pillarBoxWidth) * canvas.width / fullscreenDimensions.width + cameraCenter.x) / 45);
-                        const potentialHoveredTileJ = Math.floor(((offsetY - fullscreenDimensions.letterBoxHeight) * canvas.height / fullscreenDimensions.height + cameraCenter.y) / 45);
+                    // Set hovered tile, pan
+                    if (!(document.fullscreenElement == canvas)) {
+                        if (!dead) {
+                            const potentialHoveredTileI = Math.floor((mainTouchPosition.x * canvas.width / canvas.clientWidth + cameraCenter.x) / 45);
+                            const potentialHoveredTileJ = Math.floor((mainTouchPosition.y * canvas.height / canvas.clientHeight + cameraCenter.y) / 45);
                         
-                        if (potentialHoveredTileI != hoveredTile.i || potentialHoveredTileJ != hoveredTile.j) {
-                            hoveredTile.i = potentialHoveredTileI
-                            hoveredTile.j = potentialHoveredTileJ;
+                            if (potentialHoveredTileI != hoveredTile.i || potentialHoveredTileJ != hoveredTile.j) {
+                                hoveredTile.i = potentialHoveredTileI
+                                hoveredTile.j = potentialHoveredTileJ;
 
-                            if (hosting) {
-                                clientConnections.forEach(c => c.send({
-                                    type: "hoveredTileMoved",
-                                    i: hoveredTile.i,
-                                    j: hoveredTile.j,
-                                    peer: peer.id
-                                }));
-                            } else if (client) {
-                                serverConnection.send({
-                                    type: "moveHoveredTile",
-                                    i: hoveredTile.i,
-                                    j: hoveredTile.j
-                                });
+                                if (hosting) {
+                                    clientConnections.forEach(c => c.send({
+                                        type: "hoveredTileMoved",
+                                        i: hoveredTile.i,
+                                        j: hoveredTile.j,
+                                        peer: peer.id
+                                    }));
+                                } else if (client) {
+                                    serverConnection.send({
+                                        type: "moveHoveredTile",
+                                        i: hoveredTile.i,
+                                        j: hoveredTile.j
+                                    });
+                                }
                             }
                         }
-                    }
+                        
+                        if (mouseDown) {
+                            if (zoomTouchID == null) {
+                                if (gameSize.tileWidth > 42) { cameraCenter.x = Math.round(initialCameraCenter.x - canvas.width * (mainTouchPosition.x - initialInputPosition.x) / canvas.clientWidth); }
+                                if (gameSize.tileHeight > 24) { cameraCenter.y = Math.round(initialCameraCenter.y - canvas.height * (mainTouchPosition.y - initialInputPosition.y) / canvas.clientHeight); }
+                            } else {
+                                if (gameSize.tileWidth > 42 && gameSize.tileHeight > 24) touchZoom();
+                            }
+                        }
+                    } else {
+                        const fullscreenDimensions = getFullscreenDimensions();
+                        if (!dead) {
+                            const potentialHoveredTileI = Math.floor(((offsetX - fullscreenDimensions.pillarBoxWidth) * canvas.width / fullscreenDimensions.width + cameraCenter.x) / 45);
+                            const potentialHoveredTileJ = Math.floor(((offsetY - fullscreenDimensions.letterBoxHeight) * canvas.height / fullscreenDimensions.height + cameraCenter.y) / 45);
+                            
+                            if (potentialHoveredTileI != hoveredTile.i || potentialHoveredTileJ != hoveredTile.j) {
+                                hoveredTile.i = potentialHoveredTileI
+                                hoveredTile.j = potentialHoveredTileJ;
 
-                    if (mouseDown) {
-                        if (gameSize.tileWidth > 42) { cameraCenter.x = Math.round(previousCameraCenter.x - canvas.width * (offsetX - mousePosition.x) / fullscreenDimensions.width); }
-                        if (gameSize.tileHeight > 24) { cameraCenter.y = Math.round(previousCameraCenter.y - canvas.height * (offsetY - mousePosition.y) / fullscreenDimensions.height); }
+                                if (hosting) {
+                                    clientConnections.forEach(c => c.send({
+                                        type: "hoveredTileMoved",
+                                        i: hoveredTile.i,
+                                        j: hoveredTile.j,
+                                        peer: peer.id
+                                    }));
+                                } else if (client) {
+                                    serverConnection.send({
+                                        type: "moveHoveredTile",
+                                        i: hoveredTile.i,
+                                        j: hoveredTile.j
+                                    });
+                                }
+                            }
+                        }
+
+                        if (mouseDown) {
+                            if (zoomTouchID == null) {
+                                if (gameSize.tileWidth > 42) { cameraCenter.x = Math.round(initialCameraCenter.x - canvas.width * (offsetX - initialInputPosition.x) / fullscreenDimensions.width); }
+                                if (gameSize.tileHeight > 24) { cameraCenter.y = Math.round(initialCameraCenter.y - canvas.height * (offsetY - initialInputPosition.y) / fullscreenDimensions.height); }
+                            } else {
+                                if (gameSize.tileWidth > 42 && gameSize.tileHeight > 24) touchZoom();
+                            }
+                        }
                     }
                 }
             });
@@ -1763,10 +1816,13 @@
             canvas.addEventListener("mouseup", (event) => {
                 mouseDown = false;
 
-                if (checkIfFlagPlanted(hoveredTile.i, hoveredTile.j) !== false) return;
+                if (checkIfFlagPlanted(hoveredTile.i, hoveredTile.j) !== false) {
+                    clickRevealsTile = false;
+                    return;
+                };
 
-                if (event.button == 0) {
-                    if (Math.abs(event.offsetX - mousePosition.x) < 5 && Math.abs(event.offsetY - mousePosition.y) < 5 && hoveredTile.i !== null) {
+                if (clickRevealsTile) {
+                    if (Math.abs(event.offsetX - initialInputPosition.x) < 5 && Math.abs(event.offsetY - initialInputPosition.y) < 5 && hoveredTile.i !== null) {
                         // Click
                         if (seed == undefined) {
                             generateSeedFromClickAt(hoveredTile.i, hoveredTile.j);
@@ -1792,68 +1848,105 @@
                         if (!client) recursiveReveal(hoveredTile.i, hoveredTile.j);
                         else sendRecursiveReveal(hoveredTile.i, hoveredTile.j);
                     }
+
+                    clickRevealsTile = false;
                 }
             });
 
             canvas.addEventListener("touchend", (event) => {
+                const touch = event.changedTouches[0];
+                
                 event.preventDefault();
 
-                mouseDown = false;
 
-                if (touchHeldTimeoutID !== null) {
-                    clearTimeout(touchHeldTimeoutID);
-                    touchHeldTimeoutID = null;
-                }
+                if (touch.identifier == mainTouchID) {
+                    mainTouchID = null;
+                    mouseDown = false;
+                    const rect = event.target.getBoundingClientRect();
+                    const offsetX = touch.clientX - rect.left;
+                    const offsetY = touch.clientY - rect.top;
 
-                if (touchHoldInputted) {
-                    touchHoldInputted = false;
-                    return;
-                }
-
-                if (checkIfFlagPlanted(hoveredTile.i, hoveredTile.j) !== false) return;
-
-                const touch = event.touches[0] || event.changedTouches[0];
-                const rect = event.target.getBoundingClientRect();
-                const offsetX = touch.clientX - rect.left;
-                const offsetY = touch.clientY - rect.top;
-
-                if (Math.abs(offsetX - mousePosition.x) < 5 && Math.abs(offsetY - mousePosition.y) < 5 && hoveredTile.i !== null) {
-                    // Click
-                    if (seed == undefined) {
-                        generateSeedFromClickAt(hoveredTile.i, hoveredTile.j);
-
-                        if (client) {
-                            serverConnection.send({
-                                type: "seed",
-                                seed: seed,
-                            });
-                        } else if (hosting) {
-                            clientConnections.forEach(conn => conn.send({
-                                type: "seed",
-                                seed: seed,
-                            }));
-                        }
-
-                        screenShaking = frameTime;
-                        screenShakeSigns.x = Math.random() >= 0.5 ? 1 : -1;
-                        screenShakeSigns.y = Math.random() >= 0.5 ? 1 : -1;
+                    if (touchHeldTimeoutID !== null) {
+                        clearTimeout(touchHeldTimeoutID);
+                        touchHeldTimeoutID = null;
                     }
 
-                    if (!client) recursiveReveal(hoveredTile.i, hoveredTile.j);
-                    else sendRecursiveReveal(hoveredTile.i, hoveredTile.j);
+                    if (touchHoldInputted) {
+                        touchHoldInputted = false;
+                        return;
+                    }
+
+                    if (checkIfFlagPlanted(hoveredTile.i, hoveredTile.j) !== false) return;
+
+                    if (Math.abs(offsetX - initialInputPosition.x) < 5 && Math.abs(offsetY - initialInputPosition.y) < 5 && hoveredTile.i !== null) {
+                        // Click
+                        if (seed == undefined) {
+                            generateSeedFromClickAt(hoveredTile.i, hoveredTile.j);
+
+                            if (client) {
+                                serverConnection.send({
+                                    type: "seed",
+                                    seed: seed,
+                                });
+                            } else if (hosting) {
+                                clientConnections.forEach(conn => conn.send({
+                                    type: "seed",
+                                    seed: seed,
+                                }));
+                            }
+
+                            screenShaking = frameTime;
+                            screenShakeSigns.x = Math.random() >= 0.5 ? 1 : -1;
+                            screenShakeSigns.y = Math.random() >= 0.5 ? 1 : -1;
+                        }
+
+                        if (!client) recursiveReveal(hoveredTile.i, hoveredTile.j);
+                        else sendRecursiveReveal(hoveredTile.i, hoveredTile.j);
+                    }
+                } else if (touch.identifier == zoomTouchID) {
+                    zoomTouchID = null;
                 }
             });
 
             canvas.addEventListener("mouseleave", (ev) => hoveredTile.i = null);
             canvas.addEventListener("touchcancel", (ev) => {
-                hoveredTile.i = null;
-                touchHoldInputted = false;
- 
-                if (touchHeldTimeoutID !== null) {
-                    clearTimeout(touchHeldTimeoutID);
-                    touchHeldTimeoutID = null;
+                const touch = ev.changedTouches[0];
+
+                if (touch.identifier == mainTouchID) {
+                    mainTouchID = null;
+                    hoveredTile.i = null;
+                    touchHoldInputted = false;
+    
+                    if (touchHeldTimeoutID !== null) {
+                        clearTimeout(touchHeldTimeoutID);
+                        touchHeldTimeoutID = null;
+                    }
+                } else if (touch.identifier == zoomTouchID) {
+                    zoomTouchID = null;
                 }
             });
+
+            canvas.addEventListener('wheel', (event) => {
+                if (event.ctrlKey) {
+                    event.preventDefault();
+                    
+                    const pScaleFactor = scaleFactor;
+
+                    scaleFactor *= 1 + 0.005 * event.deltaY;
+                    if (scaleFactor > 5) {
+                        scaleFactor = 5;
+                        if (pScaleFactor == 5) return;
+
+                    } else if (scaleFactor < 0.25) {
+                        scaleFactor = 0.25;
+                        if (pScaleFactor == 0.25) return;
+                    }
+
+                    cameraCenter.x -= Math.round((currentMouseGamePosition.x - cameraCenter.x) * (scaleFactor / pScaleFactor - 1));
+                    cameraCenter.y -= Math.round((currentMouseGamePosition.y - cameraCenter.y) * (scaleFactor / pScaleFactor - 1));
+                    resizeCanvas();
+                }
+            }, { passive: false });
 
             window.addEventListener("resize", resizeCanvas);
 
