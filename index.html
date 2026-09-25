@@ -1681,7 +1681,7 @@
                         if (gameSize.tileWidth > 42) { cameraCenter.x = Math.round(initialCameraCenter.x - canvas.width * (event.offsetX - initialInputPosition.x) / canvas.clientWidth); }
                         if (gameSize.tileHeight > 24) { cameraCenter.y = Math.round(initialCameraCenter.y - canvas.height * (event.offsetY - initialInputPosition.y) / canvas.clientHeight); }
 
-                        if ((Math.abs(currentMouseGamePosition.x - initialInputPosition.x) > 5 || Math.abs(currentMouseGamePosition.y - initialInputPosition.y) > 5)) {
+                        if ((Math.abs(currentMouseGamePosition.x - initialInputPosition.x) > 10 || Math.abs(currentMouseGamePosition.y - initialInputPosition.y) > 10)) {
                             clickRevealsTile = false;
                         }
                     }
@@ -1822,7 +1822,7 @@
                 };
 
                 if (clickRevealsTile) {
-                    if (Math.abs(event.offsetX - initialInputPosition.x) < 5 && Math.abs(event.offsetY - initialInputPosition.y) < 5 && hoveredTile.i !== null) {
+                    if (Math.abs(event.offsetX - initialInputPosition.x) < 10 && Math.abs(event.offsetY - initialInputPosition.y) < 10 && hoveredTile.i !== null) {
                         // Click
                         if (seed == undefined) {
                             generateSeedFromClickAt(hoveredTile.i, hoveredTile.j);
