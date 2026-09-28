@@ -1705,9 +1705,9 @@
                         // If trying to zoom, don't reveal tile or plant flag
                         if (touchHeldTimeoutID !== null) clearTimeout(touchHeldTimeoutID);
                         inputRevealsTile = false;
-                        return;
+                        continue;
                     }
-                    else return;
+                    else continue;
 
                     if (!dead) {
                         hoveredTile.i = Math.floor((offsetX * canvas.width / canvas.clientWidth + cameraCenter.x) / 45);
@@ -1999,16 +1999,16 @@
                         if (touchHoldInputted) {
                             touchHoldInputted = false;
                             inputRevealsTile = false;
-                            return;
+                            continue;
                         }
 
                         if (zoomTouchID !== null) {
                             // Switch zoom touch to main touch
                             switchZoomTouchToMainTouch();
-                            return;
+                            continue;
                         }
 
-                        if (checkIfFlagPlanted(hoveredTile.i, hoveredTile.j) !== false) return;
+                        if (checkIfFlagPlanted(hoveredTile.i, hoveredTile.j) !== false) continue;
 
                         if (inputRevealsTile && hoveredTile.i !== null) {
                             // Click
