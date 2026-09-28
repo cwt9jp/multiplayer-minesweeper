@@ -1200,6 +1200,43 @@
                 resizeCanvas();
             }
 
+            function switchZoomTouchToMainTouch() {
+                mainTouchID = zoomTouchID;
+                zoomTouchID = null;
+
+                initialInputPosition.x = zoomTouchPosition.x;
+                initialInputPosition.y = zoomTouchPosition.y;
+
+                mainTouchPosition.x = zoomTouchPosition.x;
+                mainTouchPosition.y = zoomTouchPosition.y;
+
+                initialCameraCenter.x = cameraCenter.x;
+                initialCameraCenter.y = cameraCenter.y;
+
+                mouseDown = true;
+                inputRevealsTile = false;
+
+                if (!dead) {
+                    hoveredTile.i = Math.floor((mainTouchPosition.x * canvas.width / canvas.clientWidth + cameraCenter.x) / 45);
+                    hoveredTile.j = Math.floor((mainTouchPosition.y * canvas.height / canvas.clientHeight + cameraCenter.y) / 45);
+
+                    if (hosting) {
+                        clientConnections.forEach(c => c.send({
+                            type: "hoveredTileMoved",
+                            i: hoveredTile.i,
+                            j: hoveredTile.j,
+                            peer: peer.id
+                        }));
+                    } else if (client) {
+                        serverConnection.send({
+                            type: "moveHoveredTile",
+                            i: hoveredTile.i,
+                            j: hoveredTile.j
+                        });
+                    }
+                }
+            }
+
             class FallingTile {
                 constructor(i, j, dx, dy) {
                     this.x = i * 45 + 22;
@@ -1929,40 +1966,7 @@
 
                         if (zoomTouchID !== null) {
                             // Switch zoom touch to main touch
-                            mainTouchID = zoomTouchID;
-                            zoomTouchID = null;
-
-                            initialInputPosition.x = zoomTouchPosition.x;
-                            initialInputPosition.y = zoomTouchPosition.y;
-
-                            mainTouchPosition.x = zoomTouchPosition.x;
-                            mainTouchPosition.y = zoomTouchPosition.y;
-
-                            initialCameraCenter.x = cameraCenter.x;
-                            initialCameraCenter.y = cameraCenter.y;
-
-                            mouseDown = true;
-                            inputRevealsTile = false;
-
-                            if (!dead) {
-                                hoveredTile.i = Math.floor((mainTouchPosition.x * canvas.width / canvas.clientWidth + cameraCenter.x) / 45);
-                                hoveredTile.j = Math.floor((mainTouchPosition.y * canvas.height / canvas.clientHeight + cameraCenter.y) / 45);
-
-                                if (hosting) {
-                                    clientConnections.forEach(c => c.send({
-                                        type: "hoveredTileMoved",
-                                        i: hoveredTile.i,
-                                        j: hoveredTile.j,
-                                        peer: peer.id
-                                    }));
-                                } else if (client) {
-                                    serverConnection.send({
-                                        type: "moveHoveredTile",
-                                        i: hoveredTile.i,
-                                        j: hoveredTile.j
-                                    });
-                                }
-                            }
+                            switchZoomTouchToMainTouch();
                             return;
                         }
 
@@ -2009,22 +2013,30 @@
 
             canvas.addEventListener("mouseleave", (ev) => hoveredTile.i = null);
             canvas.addEventListener("touchcancel", (ev) => {
-                const touch = ev.changedTouches[0];
+                for (const touch in ev.changedTouches) {
+                    if (touch.identifier == mainTouchID) {
+                        mainTouchID = null;
+                        hoveredTile.i = null;
+                        touchHoldInputted = false;
+                        inputRevealsTile = false;
+        
+                        if (touchHeldTimeoutID !== null) {
+                            clearTimeout(touchHeldTimeoutID);
+                            touchHeldTimeoutID = null;
+                        }
 
-                if (touch.identifier == mainTouchID) {
-                    mainTouchID = null;
-                    hoveredTile.i = null;
-                    touchHoldInputted = false;
-                    inputRevealsTile = false;
-    
-                    if (touchHeldTimeoutID !== null) {
-                        clearTimeout(touchHeldTimeoutID);
-                        touchHeldTimeoutID = null;
+                        if (zoomTouchID !== null) {
+                            // Switch zoom touch to main touch
+                            switchZoomTouchToMainTouch();
+                        }
+                    } else if (touch.identifier == zoomTouchID) {
+                        zoomTouchID = null;
+                        initialInputPosition.x = mainTouchPosition.x;
+                        initialInputPosition.y = mainTouchPosition.y;
+
+                        initialCameraCenter.x = cameraCenter.x;
+                        initialInputPosition.y = cameraCenter.y;
                     }
-                } else if (touch.identifier == zoomTouchID) {
-                    zoomTouchID = null;
-                    initialInputPosition = mainTouchPosition;
-                    initialCameraCenter = cameraCenter;
                 }
             });
 
