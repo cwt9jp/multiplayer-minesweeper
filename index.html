@@ -1187,12 +1187,11 @@
                 else if (newZoomTouchPosition !== undefined) scaleFactor *= Math.hypot(mainTouchPosition.x - zoomTouchPosition.x, mainTouchPosition.y - zoomTouchPosition.y) / Math.hypot(mainTouchPosition.x - newZoomTouchPosition.x, mainTouchPosition.y - newZoomTouchPosition.y);
                 
                 if (scaleFactor > 5) {
-                    if (pScaleFactor == 5) return;
                     scaleFactor = 5;
-
+                    if (pScaleFactor == 5) return;
                 } else if (scaleFactor < 0.25) {
-                    if (pScaleFactor == 0.25) return;
                     scaleFactor = 0.25;
+                    if (pScaleFactor == 0.25) return;
                 }
 
                 cameraCenter.x -= Math.round((midpointGamePosition.x - cameraCenter.x) * (scaleFactor / pScaleFactor - 1));
@@ -1235,6 +1234,43 @@
                         });
                     }
                 }
+            }
+
+            function resetGame() {
+                seed = undefined;
+                cameraCenter = {
+                    x: 0,
+                    y: 0
+                };
+                if (gameSize.tileWidth > 42 && gameSize.tileHeight != Infinity) {
+                    cameraCenter.x = Math.round(gameSize.tileWidth * 45 / 2);
+                }
+                if (gameSize.tileHeight > 24 && gameSize.tileWidth != Infinity) {
+                    cameraCenter.y = Math.round(gameSize.tileHeight * 45 / 2);
+                }
+                scaleFactor = 1.5;
+
+                hoveredTile.i = null;
+
+                revealedTiles.clear();
+                revealedMines.clear();
+                plantedFlags.clear();
+                incorrectFlags.clear();
+
+                fallingTiles = [];
+
+                animatingFlags = [];
+                fallingFlags = [];
+
+                screenShaking = false;
+
+                dead = false;
+                bombageddon = false;
+                bombageddonFinished = false;
+                bombageddonIncorrectFlagSoundPlayed = false;
+                
+                animatingMines = [];
+                fallingConfetti = [];
             }
 
             class FallingTile {
@@ -1596,6 +1632,8 @@
                                 }
                             });
                         });
+
+                        setTimeout(resetGame, 5000);
                     }
                 }
 
