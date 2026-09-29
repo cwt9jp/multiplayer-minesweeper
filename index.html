@@ -446,7 +446,7 @@
             }
 
             function processServerData(data) {
-                console.log(data);
+                // console.log(data);
 
                 switch (data.type) {
                     case "startGame":
@@ -535,17 +535,27 @@
                             conn.ready = false;
 
                             readyPlayersDiv.children[readyPlayersDiv.children.length - 1].textContent = `${readyPlayers}/${clientConnections.length}`;
+                            playButton.classList.add("actually-disabled");
+                            playButton.disabled = true;
 
                             conn.on("close", () => {
                                 if (conn.ready) readyPlayers--;
                                 clientConnections = clientConnections.filter(c => c !== conn);
 
                                 readyPlayersDiv.children[readyPlayersDiv.children.length - 1].textContent = `${readyPlayers}/${clientConnections.length}`;
+                                
+                                if (readyPlayers == clientConnections.length) {
+                                    playButton.classList.remove("actually-disabled");
+                                    playButton.disabled = false;
+                                } else {
+                                    playButton.classList.add("actually-disabled");
+                                    playButton.disabled = true;
+                                }
                             })
 
                             conn.on("open", () => {
                                 conn.on("data", (data) => {
-                                    console.log(data);
+                                    // console.log(data);
 
                                     switch (data.type) {
                                         case "ready":
