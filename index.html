@@ -117,6 +117,24 @@
                 height: 30px;
             }
 
+            #reset-button {
+                position: absolute;
+                top: 85vh;
+                left: calc(50vw - 70px);
+
+                visibility: hidden;
+                opacity: 0;
+
+                transition:
+                    visibility ease-in-out 0.1s,
+                    opacity ease-in-out 0.1s;
+
+                &.showing {
+                    visibility: visible;
+                    opacity: 1;
+                }
+            }
+
             input[type="number"] {
                 width: min(45px, 30%);
                 height: min(40px, 80%);
@@ -213,6 +231,10 @@
             </div>
 
         </div>
+        <button class="menu-button" id="reset-button">
+            <img class="button-img" src="data:image/png;base64,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" />
+            <h2>Reset</h2>
+        </button>
         <canvas id="game" width="1920" height="1080" style="height: 100dvh; overflow: hidden"></canvas>
         <script type="module">
             // TODO: Consolidate all repeating code into functions
@@ -243,6 +265,8 @@
             const lobbyIDDiv = document.getElementById("lobby-id-div");
             const readyPlayersDiv = document.getElementById("ready-players-div");
             const playButton = document.getElementById("play-button");
+
+            const resetButton = document.getElementById("reset-button");
 
 
             function toggleButtonPlayers(button) {
@@ -403,6 +427,19 @@
                 }
             });
 
+            resetButton.addEventListener("click", () => {
+                if (hosting) {
+                    clientConnections.forEach(conn => conn.send({
+                        type: "resetGame"
+                    }));
+                    resetGame();
+                    resetButton.classList.remove("showing");
+                } else if (!client) {
+                    resetGame();
+                    resetButton.classList.remove("showing");
+                }
+            });
+
             // Multiplayer
             let hosting = false;
             let clientConnections = [];
@@ -511,6 +548,8 @@
                         });
                         if (playUnplantAudio) playAudio(unplantFlagAudioBuffer);
                         break;
+                    
+                    case "resetGame": resetGame();
                 }
             }
 
@@ -902,6 +941,10 @@
                     pFrameTime = frameTime;
                     bombageddon = frameTime;
                     screenShaking = frameTime;
+
+                    if (hosting || !client) {
+                        resetButton.classList.add("showing");
+                    }
                     return;
                 }
 
@@ -1642,8 +1685,6 @@
                                 }
                             });
                         });
-
-                        setTimeout(resetGame, 5000);
                     }
                 }
 
