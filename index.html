@@ -24,6 +24,7 @@
 
                 display: block;
                 width: min-content;
+                white-space: nowrap;
             }
 
             #menu-wrapper {
@@ -117,13 +118,20 @@
                 height: 30px;
             }
 
-            #reset-button {
+            #dead-menu-wrapper {
                 position: absolute;
-                top: 85vh;
-                left: calc(50vw - 70px);
+                top: 100%;
+                left: 50%;
+
+                transform: translate(-50%, calc(-100% - 16px));
 
                 visibility: hidden;
                 opacity: 0;
+
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                align-items: center;
 
                 transition:
                     visibility ease-in-out 0.1s,
@@ -135,7 +143,51 @@
                 }
             }
 
-            input[type="number"] {
+            #main-dead-elements-wrapper {
+                display: flex;
+                gap: 16px;
+            }
+
+            #stats-wrapper {
+                display: flex;
+                flex-direction: column;
+                
+                gap: 5px;
+
+                width: max(100%, 150px);
+                padding-block: 10px;
+
+                background-color: #4a752c;
+                border-radius: 8px;
+
+                opacity: 1;
+
+                transition:
+                    opacity ease-in-out 0.1s,
+                    display ease-in-out 0.1s allow-discrete;
+
+                &.hidden {
+                    opacity: 0;
+                }
+
+                @starting-style {
+                    opacity: 0;
+                }
+            }
+
+            .stat {
+                display: flex;
+                align-items: center;
+                justify-content: space-around;
+
+                gap: 20px;
+
+                & h2 {
+                    margin: 0;
+                }
+            }
+
+            .game-size-input {
                 width: min(45px, 30%);
                 height: min(40px, 80%);
                 padding: 0 5px;
@@ -162,7 +214,7 @@
                 appearance: textfield;
             }
 
-            input[type=text] {
+            #lobby-id-input {
                 padding: 10px 15px;
                 min-width: 80px;
 
@@ -203,13 +255,13 @@
                     <h2>Endless</h2>
                 </button>
                 <button class="menu-button" style="gap: 5px;" id="finite-button">
-                    <input id="width-input" type="number" min="1" value="100" id="tile-width-input" />
+                    <input id="width-input" class="game-size-input" type="number" min="1" value="100" />
                     <img class="button-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4CAYAAAA5ZDbSAAAE/UlEQVR4AeyZjWoUQRCEE59RERFEEBFEEBFEEPEHEUQQEUQIIRACIeQlY/Uyw+bvLtc7M7s1vSXd2xt3pre6PoZwl3t7+hfaAQEOjXdvT4AFOLgDwcfTCRbg4A4EH08nWICDOxB8vLWe4OBYx/EEePQi5J0Ah8Q6DiXAoxch7wQ4JNZxKAEevQh5J8AhsY5DCfDoRcg7AQ6JdRzqGuDxge5iOCDAMThunEKAN1oT44EAx+C4cQoB3mhNjAcCHIPjxikEeKM1MR4IcAyOG6cQ4MGauBcBjst2mEyABxviXgQ4LtthMgEebIh7EeC4bIfJBHiwIe5FgOOyHSYT4MGGuJftgOPOvZrJugB8cXHxwJKFimmxZNGzTQc94GTkOYY4T/e4XS6SBho9dzlBDfiSmXmORSGz6cmmbKu0gG8xM8+xCGQ2PdmMuyol4C1m5nlmhcymJ5uwS6UDvIOZea5ZILPpycPvWqkAO8zM8zWFzKYnD+2pVIAh/D7SG/UhQ8EEuNg1xJQZho0tLlSA9/f3H2LIM6Q3qkIugHuWZvDqb7aeCrBNCYMeoZ4ivVEFcgHc06Tdq7vpejrANi2Meox6gvRGEeQCuCdJs1dv8/WUgG1qGPYE9RjpjUmQC+AeJ61enbOspwVs08O4p6hHSG+4IBfAPUoavfpmW08N2FyAgc9QD5He2AlyAdzDpM2ra9b19IDNDRj5HPUA6Y2tkAvgHiRNXj2zr+8CsLkCQ1+g/kN641bIBXD/JS1eHYusdwFeROGll8LYl/jxL9IbVyAXwP2bNHjfv9j6rgCbSzD4FeofpDcGyAVw/6R3e9+76PruAJtbMPo16m+kN4Y/1Hs3Yf3v9E7c9hVdAjaLYfgb1F/I1vErvav1e5r07xawuQHj36L+RLaKn+kdrfo379s1YHMHAN6h/kDWjh+pd+2+s/brHrC5BRDvUb8ja8X31LNWv8X6hABs7gHIB9RvyNL4lnqV9qHYHwawuQkwH1G/IqfG19Tjyv6efwgFOIG4SHVKKdk75X3N94QCjC8xPsExS5RJ8Qk9Pk/aSbopDGCAMbA14ISCHAJwRbj5HIaB3D3gBnBDQe4acEO4YSB3C3gGuCEgdwm4AO4XULNEcUW3v5NLALscqrW4BC6+xPhsCS2rgdwVYMC1j0GWYOSKLwnssCndrwJyN4ATXPusO0ByXK7AzfvWArkLwLXhrgkyPeBWcNcCmRpwa7hrgEwLeC640SFTAp4bbmTIdICXguuAnJder5RfhlABXhpuJhbpIxQV4Gyws976OdfZ48byAsg3ei35H1SAJ5jaBG4GwqYn6/JUKsAm3GFqU7imxZJNj2nyJB1gE7+DqbPANS2WbHpM065JCdjEbzF1VrimxZJNj2naJWkBm/hbTF0ErmmxZNNjmu5KasAm/pKpi8I1LZZsekzTtqwIeNtryp6ZqZZlXertNi2W9Tq269QF4Hbjx+8swMEZC7AAB3cg+Hg6wQIc3IHg4+kEC3BwB4rH426gE8zNp1idABdbyN1AgLn5FKsT4GILuRsIMDefYnUCXGwhdwMB5uZTrE6Aiy3kbtAOMPfcq1EnwMFRC7AAB3cg+Hg6wQIc3IHg4+kEC3BwB4KPpxNcGzBZPwEmA1JbjgDXdpSsnwCTAaktR4BrO0rWT4DJgNSWI8C1HSXrJ8BkQGrLEeDajpL1mw0w2dyrkfMfAAD//7elzDkAAAAGSURBVAMA0d+lAH0vjzMAAAAASUVORK5CYII=" />
-                    <input id="height-input" type="number" min="1" value="100" id="tile-height-input" />
+                    <input id="height-input" class="game-size-input" type="number" min="1" value="100" />
                 </button>
             </div>
             <div class="button-wrapper hidden" id="join-button-wrapper">
-                <input type="text" placeholder="Lobby ID" id="lobby-id-input"/>
+                <input type="number" placeholder="Lobby ID" id="lobby-id-input"/>
                 <button class="menu-button actually-disabled" id="ready-button" disabled>
                     <img class="button-img" src="data:image/png;base64,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" />
                     <h2>Ready</h2>
@@ -231,15 +283,24 @@
             </div>
 
         </div>
-        <button class="menu-button" id="reset-button">
-            <img class="button-img" src="data:image/png;base64,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" />
-            <h2>Reset</h2>
-        </button>
+        <div id="dead-menu-wrapper">
+            <div id="main-dead-elements-wrapper">
+                <button class="menu-button hidden" id="reset-button">
+                    <img class="button-img" src="data:image/png;base64,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" />
+                    <h2>Reset</h2>
+                </button>
+                <button class="menu-button hidden" id="stats-button">
+                    <img class="button-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4CAYAAAA5ZDbSAAADZElEQVR4AezXgXLqIBCFYb0vXvvk3sBI0nbEmEDM2Z/TCQlTKrN7vsHqv4t/0AkYGM17uRjYwPAE4O35BBsYngC8PZ9gA8MTgLc36gmGsy7tGXjJAjkzMJJ1acrASxbImYGRrEtTBl6yQM4MjGRdmjLwkgVyZmAk69LUH+BlwTNGAgZmOFa7MHA1GsaCgRmO1S4MXI2GsWBghmO1CwNXo2EsGJjhWO3CwDka7s3AXNvcmYFzDNybgbm2uTMD5xi4NwNzbXNnBs4xcG8G5trmzgycY+DeXgNz+x6mMwPDqQ1sYHgC8PZ8gg0MTwDe3lAn+H6/39KAm/5qbxjgB+zX1P3XYz5N+dcQwA/QhFtEXyOXvwI88cBPcAvbEMho4Be4wyBjgd/AHQIZCbwBF4+MA96Bi0ZGATfgYpExwB1wkcgI4I64OORNwKV7pecBuKU9xPfk0MAH4mKQwwJ/ABeBHBK4Afd7Uktjemy6wr5dhwNuwb1er7c0JtphkEMBt+JOsPkaCTkMcANuObUZt9xGQQ4B3IhbfTseAVke+CjcLSe5/O2fZ4gPXtLAR+MWMPJJlgX+FC4dWRL407hkZDngs3CpyFLAZ+MSkWWAVXBpyBLADbjf0yfg6vfcgrX3Oe19m167Z3+Zr1CnAzfiJoDJ4LgrOnILcHOq6rilwcjIpwFHwY2OfBpwCW7jM/3PPfxtuVZTw0mubXn4708D3hHWqbhFIlrdpwGnwDaEJYGbak4jUt2nAr8ZlhRuqjmNN5Al6j4deCUsiZBSjc/GC2SZuiWAU3hPwpIJKdVXG+p1ywCnAH+EpYybSv01lOuWAk6ppbDSSPNII9WchlrNcsBqAUWvx8DRBVfqN/BKQNGXDRxdcKV+A68EFH3ZwNEFV+o38EpA0Zc7AkePglm/gZmuc1cGnqNgTgzMdJ27MvAcBXNiYKbr3JWB5yiYEwMzXeeuDDxHsXei/ToDa/s0V2fg5gi1NzCwtk9zdQZujlB7AwNr+zRXZ+DmCLU3MLC2T3N1Bm6OUHuD44C1+x6mOgPDqQ1sYHgC8PZ8gg0MTwDenk+wgeEJwNvzCe4NLLafgcVAepdj4N6Jiu1nYDGQ3uUYuHeiYvsZWAykdzkG7p2o2H4GFgPpXY6Beycqtt/HgMX6Hqac/wAAAP//o8vCMQAAAAZJREFUAwAtOSsAufA/+wAAAABJRU5ErkJggg==" />
+                </button>
+            </div>
+            <div id="stats-wrapper" class="hidden">
+
+            </div>
+        </div>
         <canvas id="game" width="1920" height="1080" style="height: 100dvh; overflow: hidden"></canvas>
         <script type="module">
             // TODO: Consolidate all repeating code into functions
-            // TODO: Zoom on mobile (midpoint between touches is always halfway between touches), and change in distance between touches determines scale factor
-            // TODO: Differentiate between touches (which touch was to zoom, which was to place/dig)
+            // TODO: Implement finite minesweeper
 
             import { Peer } from 'https://cdn.jsdelivr.net/npm/peerjs@1.5.5/+esm'
             
@@ -266,8 +327,10 @@
             const readyPlayersDiv = document.getElementById("ready-players-div");
             const playButton = document.getElementById("play-button");
 
+            const deadMenuWrapper = document.getElementById("dead-menu-wrapper");
             const resetButton = document.getElementById("reset-button");
-
+            const statsWrapper = document.getElementById("stats-wrapper");
+            const statsButton = document.getElementById("stats-button");
 
             function toggleButtonPlayers(button) {
                 if (joinButton.disabled && button != joinButton) {
@@ -404,6 +467,12 @@
                     if (readyPlayers == clientConnections.length && !gameStarted) {
                         gameStarted = true;
 
+                        peerIDsToIndexDict[peer.id] = 0;
+                        playerStats.push({
+                            peer: peer.id,
+                            tilesRevealed: 0
+                        });
+
                         clientConnections.forEach((conn, index) => {
                             clientConnectionIDs.push(conn.peer);
                             peerIDsToIndexDict[conn.peer] = index + 1;
@@ -411,13 +480,20 @@
                             const clientFlagData = newHueShiftedFlag(conn.peer);
                             flagSpriteSheets.push(clientFlagData[0]);
                             hoveredTileColors.push(clientFlagData[1]);
+                            playerFlags.push(clientFlagData[2]);
+
                             hoveredTiles.push({
                                 i: null,
                                 j: null
                             });
+                            playerStats.push({
+                                peer: conn.peer,
+                                tilesRevealed: 0
+                            });
                         });
 
                         menuWrapper.classList.add("menu-hidden");
+
                         clientConnections.forEach(conn => {
                             conn.send({ type: "startGame", peerIDs: clientConnectionIDs });
                         });
@@ -433,24 +509,36 @@
                         type: "resetGame"
                     }));
                     resetGame();
-                    resetButton.classList.remove("showing");
                 } else if (!client) {
                     resetGame();
-                    resetButton.classList.remove("showing");
                 }
+            });
+
+            statsButton.addEventListener("click", () => {
+                if (statsWrapper.classList.contains("hidden")) {
+                    statsWrapper.classList.remove("hidden");
+                    statsButton.children[0].style.rotate = "180deg";
+                } else {
+                    statsWrapper.classList.add("hidden");
+                    statsButton.children[0].style.rotate = "";
+                }
+
             });
 
             // Multiplayer
             let hosting = false;
             let clientConnections = [];
             let clientConnectionIDs = [];
+
+            let playerStats = [];
+
             let readyPlayers = 0;
 
             let client = false;
             let ready = false;
             let serverConnection;
 
-            let peerIDsToIndexDict = {}; // This will contain its own peer id if client, else not
+            let peerIDsToIndexDict = {}; // This will always contain its own peer id
 
             let gameStarted = false;
 
@@ -498,6 +586,7 @@
                         const clientFlagData = newHueShiftedFlag(serverConnection.peer);
                         flagSpriteSheets.push(clientFlagData[0]);
                         hoveredTileColors.push(clientFlagData[1]);
+                        playerFlags.push(clientFlagData[2]);
                         hoveredTiles.push({
                             i: null,
                             j: null
@@ -549,7 +638,12 @@
                         if (playUnplantAudio) playAudio(unplantFlagAudioBuffer);
                         break;
                     
-                    case "resetGame": resetGame();
+                    case "resetGame":
+                        resetGame();
+                        break;
+                    case "stats":
+                        statsToLeaderboardHTML(data.stats);
+                        break;
                 }
             }
 
@@ -627,6 +721,7 @@
                                             break;
 
                                         case "revealTile":
+                                            playerStats[peerIDsToIndexDict[conn.peer]].tilesRevealed++;
                                             recursiveReveal(data.i, data.j);
                                             break;
 
@@ -676,7 +771,30 @@
                 }
             });
 
+            function statsToLeaderboardHTML(stats) {
+                statsWrapper.replaceChildren();
 
+                stats.sort((a, b) => b.tilesRevealed - a.tilesRevealed);
+
+                stats.forEach(stat => {
+                    const leaderboardDiv = document.createElement("div");
+                    leaderboardDiv.classList.add("stat");
+                    leaderboardDiv.style.cursor = "unset";
+
+                    const h2Element = document.createElement("h2");
+
+                    if (stat.tilesRevealed != 1) {
+                        h2Element.textContent = stat.tilesRevealed + " tiles";
+                    } else {
+                        h2Element.textContent = stat.tilesRevealed + " tile";
+                    }
+
+                    leaderboardDiv.appendChild(playerFlags[peerIDsToIndexDict[stat.peer]]);
+                    leaderboardDiv.appendChild(h2Element);
+
+                    statsWrapper.appendChild(leaderboardDiv);
+                });
+            }
 
             // Gameplay
 
@@ -818,6 +936,7 @@
             function newHueShiftedFlag(id) {
                 const degree = Math.floor((parseInt(id) - 100000) * 320 / 899999 + 20);
 
+                hueChangeCTX.clearRect(0, 0, hueChangeCanvas.width, hueChangeCanvas.height);
                 hueChangeCanvas.width = flagPlantSpriteSheet.width;
                 hueChangeCanvas.height = flagPlantSpriteSheet.height;
 
@@ -826,20 +945,33 @@
                 hueChangeCTX.drawImage(flagPlantSpriteSheet, 0, 0);
 
                 const hoverColor = hueChangeCTX.getImageData(19, 67, 1, 1).data;
-                const returnImage = new Image();
-                returnImage.src = hueChangeCanvas.toDataURL()
+                const returnFlagSheet = new Image();
+                returnFlagSheet.src = hueChangeCanvas.toDataURL();
 
-                return [returnImage, `rgba(${hoverColor[0]}, ${hoverColor[1]}, ${hoverColor[2]}, 0.25)`];
+                hueChangeCanvas.width = 80;
+                hueChangeCanvas.height = 80;
+                hueChangeCTX.filter = `hue-rotate(${degree}deg)`;
+                hueChangeCTX.drawImage(flagPlantSpriteSheet, 0, 730, 80, 80, 0, 0, 80, 80);
+                const returnFlag = new Image();
+                returnFlag.classList.add("button-img");
+                returnFlag.src = hueChangeCanvas.toDataURL();
+
+                return [returnFlagSheet, `rgba(${hoverColor[0]}, ${hoverColor[1]}, ${hoverColor[2]}, 0.25)`, returnFlag];
             }
 
             // Note on images: TODO is to wait for all images to have loaded, then allow game to play
             const flagPlantSpriteSheet = new Image();
             flagPlantSpriteSheet.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAAMqCAMAAAAinjalAAAAb1BMVEUAAADlMAbnMgbmMwbmMwfnMQTlMgbmMwfmMgXmMQDlMgbuMwDnMwXpMQXlMwbmMgfmMwfoMwfpMwfyNQbyNgfyNgXxNQb0NgXzNQXxNQb/MwDyNgbyNQfmMwb3MQDxNQfxNgfzNQTzNgbyNAbnMwfel3/IAAAAJXRSTlMAT3+vvz+f/48f7w9fL8/fb2//n/9f7y+Pzw+vv88fb98/f0/f9ICkhwAAAy1JREFUeAHs2YeRIzEUA9EviiREp1H+yZ6/teW2iPX9AugAgAAAAAAAAACA93FK5/zPOZXYVvVIjU0XPZFiS9NTfcSOqWdm7CjpmRIfCQAAAAAAAAAAq/yzwqBc9UBt2z091lfsOfREji0nPdO8d4p0ix1Zz1R3MH+q4OcHAAAAAAAAtBZeKYXXcYRVkUo4VamG0ehSH+Ez9csMn2zeSpv+aOGS9EcKl0N/HGFS9E8Jj+pZ7TloOGg+WRAAAAAAgBJmebmDV3dQyR3szRxUdgd1cwd7MweV3UHd3MHezEGd3UGd3ME+zEFVdzATJEiQIAcNB83nCQIAAKCFWR3hlZM7qOYOZndQJ3fwGOagkjuo9fEXzukO9mEO6uIOarmD2R3UZLchSJAgQYIECRLkoOGg4aB5CQAA5gqvrOOy7JPp9dbsc9+VMY0gQYIECRIkSJAgQYIECRLkoOGg4aABAOBn+3Zg2jAMQEF0hlaxLMupJMfdf8YCt0E50gL/BnhExAbwR28uA82HB9JnscFHsUFEE3xsNohogogmiGiCiBaIaIKINlh3E0Q0QUQbbCp4bF08ci0cVwJP9dV7clQL/Br5zBIwYMCAAQMGDJiBJgNNBpqUUkrpj8pA0+09pU59T1n+/LEufa14XiYIOUSQyhBBat0Dqb66CEJOEaS1mSDkpYI8liYIOUwQ0QRrg3NA5hULZEnSwGNyVAdcDc0BV2PlcsBabnWjR5PA763nU1XAgAEDBgwYMANNBpoMNL8upZRSykDjXni59Pspa3Z9Tym7C/Lt1QOpll0E6bm5IJ/EVZCfKYK0XkME6bxVkJ/ZRZDK5YK8lR5IxzBBXh4L5PXWwMW0IoGMIRaIZoGVZ08CGWo0EM0CTx4RCUSzwGPm4pUABgwYMGDAgBloMtBkoLFLKaWUMtAMfaBZ7XJBvsp1EaRzDhGko+0uyOFNkM5tiCAdr10EaZXbBTl8F0E65i6CtNotglQ5vAXScw4RpCaCbHMeyCupgSeaA/J0ayB3dCyQv8ECGZIskD9VA9Es8JQvXqE54Jr/+eLVlYtXAQMGDBjwzWAGmgw0GWhSSj+AtAr03RdmqAAAAABJRU5ErkJggg=="
 
+            const flag = new Image();
+            flag.classList.add("button-img");
+            flag.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAYAAACOEfKtAAAEQklEQVR4AezcYVLaUBAA4N1nSaYzVezf/qk9QVEKf8UTaE+gPYH2BLUn0J5Ae4LaE9T+hTrSE2h/iO2vSuhMB6hs9wXFpwyasAkk8DLCPCQbXj7eZldnQIHdRAIWUMQHYAEtoFBAGG5XoAUUCgjD7Qq0gEIBYbhdgeMEPM9n1n8tZl4K55DqcNEKJFAbl0pVa0vuSW0pszONmCLA3tJBWABUWxrzLO8c1/LuZm0RnsMUbNEAGlAImOOHu6DcU435kzH/JguTpxfdT+SA5tSQMRFgt51xT+tF96RRyOw0Co+WzX3SPo4V0MRhyAXiNCecOawXnN9ewdnzXjmrlIesuV/axiMDNGEQcR4QN0DhQWPGvfCKzqd6wd1MY6qPBdDE7I5xDfEq1QvOcYNT/U8xHe1RQgC7jPoeEXPEqd4BVa0bqa6fS+ItcYAmEmP2Ut0ruuRxqnvFzHqSUj3RgCZmd4xrAGrfr+o61YvOu3GnesoAu4z6nldnjgC3OzrVuUXyrqq6fm6Ut9QCmkgIwH8JoV/VPSPVR9EiTQQg9G3op7pukbgQHde5RYor1ScU8EZUpzpyi3Sd6g1ukXQDf7OHbDTxgCYPcqrrFkk38HXdIl1VdUmqpwTQZIhmjPqvIcBeqnsF90udUz1sizS1gH1vA0IJOdV1i9TgNIeAmwW8giKAUwTazrSbC7OV9lsIuE01IBFdANE+dGgtW26+mC233j8+hh8B7fzdphSQDny0SuvpXKX1Zu5b67OvMcTdFAEyGnQ2Zi+b83Pl1msJmuk80YCcolUi2NLXNR+t3P6IR1A3AaRjJT1A0uLJKAbZSmsxW2l+CHtdC3NOEwHoo1FnV0Enlx2yGIRBM/dNLSCn5+0Kyq3Hk3L7u3lyoxinD5Co23ZEUEGjAE4JIB3AdQUVth1RoJnHSCwgp2hVV9Be2xFDBTUhhh3HBzjEjIgrqEbTbcd1BY267RhiWveGjB1Qo6FRQeNuO+7VGOLJsQByevoVFOmy5LcdY6qgQ3j1hYwWkOhWBZ2t/PvaN6OU/SJ2wA5f15JaQaN4r2IHJAacS2gFTQVgFJNM8jFiX4FJPvko5mYBhYoW0AIKBYThdgVaQKGAMPzWChQeayrDLaDwbbeAFlAoIAy3K9ACCgWE4XYFWkChgDDcrkALKBQQhodegeeLj5b1B6lreZf/2QwleHgr6X3Plpy9SfwUeyhAjUdq5hAB9afSH6Yz9kDEDUKnOmnfqxAKkHBm3zAJPWTE+UuldkMHxhggPbQKeoCznLMK+sslggYM3q80SakcGBAVBbneDWYzn1HumvkwzePAgIAq9HVvEAwRRXasQa8xqt+rUb2Q+TqIuGA+TvN4LIBpBrs7dwt4VyTk48CAz46aK3zDiG4rIeeZ2N0DAyb2DMY8MQsofAMsoAUUCgjD7QqcQkDhKUcbbleg0NMCWkChgDD8PwAAAP//BNgPPAAAAAZJREFUAwBbbpSwNmv5dQAAAABJRU5ErkJggg=="
+            
             const incorrectFlagImage = new Image();
             incorrectFlagImage.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkBAMAAACCzIhnAAAAElBMVEXmMwflMwbuMwAAAADlMgbpMQXAIe0TAAAABnRSTlP/zw8A7y/LcxF7AAABSUlEQVR4AWIAAyFjooAiAwIwKhOjw0gAUFcdEwEIBEAQ2wJHN/Q0rwD8a0FBFKRMVZkxYsaIGSNmjJgxIgYIGCNmjDxgiFx9YIicbjBE3gaGyBoYImtgiKyBIbIGhsgaGCJrYIisgSGyBobIGhgia2SArJEBskYGyBoZIGtkgKyRAbJGBsgaGSBrZICskQGyRgbIGhkga2SArJEBsiZGyJoYIWtihKyJEbImRsgaGSBrZICskQGyRgbIGhkga2SArJEBskYGyPIn+iZ/om8yIiYjYjIiJiNiMiImI2IyIiYjYuKM3DMhh0nHfpl0QjYxCdnERIRMRMhkRExGxGRETEbEZERMRsRkRExGxGRETEbEZERMRsRkRExGxGRETEbEZERMRsRkRExGxGRETEbEZERMRsRkRIwRM0bMGDFjxIwRM0bMGBEDBMwPUeWNbYcaWFoAAAAASUVORK5CYII="
 
             let flagSpriteSheets = [flagPlantSpriteSheet];
+            let playerFlags = [flag];
             let hoveredTileColors = ["rgba(255, 255, 255, 0.25)"];
             let hoveredTiles = [hoveredTile];
             
@@ -942,9 +1074,26 @@
                     bombageddon = frameTime;
                     screenShaking = frameTime;
 
-                    if (hosting || !client) {
-                        resetButton.classList.add("showing");
+                    
+                    if (client) {
+                        resetButton.classList.add("hidden");
+                        statsButton.classList.remove("hidden");
+                    } else if (hosting) {
+                        resetButton.classList.remove("hidden");
+                        statsButton.classList.remove("hidden");
+
+                        clientConnections.forEach(conn => conn.send({
+                            type: "stats",
+                            stats: playerStats
+                        }));
+
+                        statsToLeaderboardHTML(playerStats);
+                    } else {
+                        resetButton.classList.remove("hidden");
+                        statsButton.classList.add("hidden");
                     }
+
+                    deadMenuWrapper.classList.add("showing");
                     return;
                 }
 
@@ -1202,7 +1351,7 @@
                 ctx.save();
                 ctx.translate(x, y);
                 ctx.rotate(theta);
-                ctx.drawImage(flagSpriteSheets[index], 0, 729, 80, 81, -side / 2, -side / 2, side, side);
+                ctx.drawImage(flagSpriteSheets[index], 0, 730, 80, 80, -side / 2, -side / 2, side, side);
                 ctx.restore();
             }
 
@@ -1301,7 +1450,9 @@
                 if (gameSize.tileHeight > 24 && gameSize.tileWidth != Infinity) {
                     cameraCenter.y = Math.round(gameSize.tileHeight * 45 / 2);
                 }
+
                 scaleFactor = 1.5;
+                resizeCanvas();
 
                 hoveredTile.i = null;
 
@@ -1324,6 +1475,14 @@
                 
                 animatingMines = [];
                 fallingConfetti = [];
+
+                if (hosting) {
+                    playerStats.forEach(stat => stat.tilesRevealed = 0);
+                }
+
+                deadMenuWrapper.classList.remove("showing");
+                statsWrapper.classList.add("hidden");
+                statsButton.children[0].style.rotate = "";
             }
 
             class FallingTile {
@@ -1371,7 +1530,7 @@
                     if (frameTime < this.timeCreated + 100) {
                         ctx.drawImage(this.flagSpriteSheet, 0, 81 * Math.floor((frameTime - this.timeCreated) * 9 / 100), 80, 81, this.x - cameraCenter.x, this.y - cameraCenter.y, 45, 45);
                     } else {
-                        ctx.drawImage(this.flagSpriteSheet, 0, 729, 80, 81, this.x - cameraCenter.x, this.y - cameraCenter.y, 45, 45);
+                        ctx.drawImage(this.flagSpriteSheet, 0, 730, 80, 80, this.x - cameraCenter.x, this.y - cameraCenter.y, 45, 45);
                         this.dead = true;
                     }
                 }
@@ -1557,7 +1716,7 @@
                                     }
 
                                     if (checkIfFlagAnimating(i, j) === false) {
-                                        ctx.drawImage(flagSpriteSheets[checkIfFlagPlanted(i, j)], 0, 729, 80, 81, i * 45 - cameraCenter.x, j * 45 - cameraCenter.y, 45, 45);
+                                        ctx.drawImage(flagSpriteSheets[checkIfFlagPlanted(i, j)], 0, 730, 80, 80, i * 45 - cameraCenter.x, j * 45 - cameraCenter.y, 45, 45);
                                     } else {
                                         animatingFlags[checkIfFlagAnimating(i, j)].render();
                                     }
@@ -2023,7 +2182,10 @@
                             screenShakeSigns.y = Math.random() >= 0.5 ? 1 : -1;
                         }
 
-                        if (!client) recursiveReveal(hoveredTile.i, hoveredTile.j);
+                        if (!client) {
+                            recursiveReveal(hoveredTile.i, hoveredTile.j);
+                            playerStats[0].tilesRevealed++;
+                        }
                         else sendRecursiveReveal(hoveredTile.i, hoveredTile.j);
                     }
 
@@ -2083,7 +2245,10 @@
                                 screenShakeSigns.y = Math.random() >= 0.5 ? 1 : -1;
                             }
 
-                            if (!client) recursiveReveal(hoveredTile.i, hoveredTile.j);
+                            if (!client) {
+                                recursiveReveal(hoveredTile.i, hoveredTile.j);
+                                playerStats[0].tilesRevealed++;
+                            }
                             else sendRecursiveReveal(hoveredTile.i, hoveredTile.j);
 
                         }
