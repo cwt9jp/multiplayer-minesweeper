@@ -255,9 +255,9 @@
                     <h2>Endless</h2>
                 </button>
                 <button class="menu-button" style="gap: 5px;" id="finite-button">
-                    <input id="width-input" class="game-size-input" type="number" min="1" value="100" />
+                    <input id="width-input" class="game-size-input" type="number" min="1" value="100" onkeydown="if(event.key==='.' || event.key==='e' || event.key==='+' || event.key==='-') event.preventDefault();" />
                     <img class="button-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4CAYAAAA5ZDbSAAAE/UlEQVR4AeyZjWoUQRCEE59RERFEEBFEEBFEEPEHEUQQEUQIIRACIeQlY/Uyw+bvLtc7M7s1vSXd2xt3pre6PoZwl3t7+hfaAQEOjXdvT4AFOLgDwcfTCRbg4A4EH08nWICDOxB8vLWe4OBYx/EEePQi5J0Ah8Q6DiXAoxch7wQ4JNZxKAEevQh5J8AhsY5DCfDoRcg7AQ6JdRzqGuDxge5iOCDAMThunEKAN1oT44EAx+C4cQoB3mhNjAcCHIPjxikEeKM1MR4IcAyOG6cQ4MGauBcBjst2mEyABxviXgQ4LtthMgEebIh7EeC4bIfJBHiwIe5FgOOyHSYT4MGGuJftgOPOvZrJugB8cXHxwJKFimmxZNGzTQc94GTkOYY4T/e4XS6SBho9dzlBDfiSmXmORSGz6cmmbKu0gG8xM8+xCGQ2PdmMuyol4C1m5nlmhcymJ5uwS6UDvIOZea5ZILPpycPvWqkAO8zM8zWFzKYnD+2pVIAh/D7SG/UhQ8EEuNg1xJQZho0tLlSA9/f3H2LIM6Q3qkIugHuWZvDqb7aeCrBNCYMeoZ4ivVEFcgHc06Tdq7vpejrANi2Meox6gvRGEeQCuCdJs1dv8/WUgG1qGPYE9RjpjUmQC+AeJ61enbOspwVs08O4p6hHSG+4IBfAPUoavfpmW08N2FyAgc9QD5He2AlyAdzDpM2ra9b19IDNDRj5HPUA6Y2tkAvgHiRNXj2zr+8CsLkCQ1+g/kN641bIBXD/JS1eHYusdwFeROGll8LYl/jxL9IbVyAXwP2bNHjfv9j6rgCbSzD4FeofpDcGyAVw/6R3e9+76PruAJtbMPo16m+kN4Y/1Hs3Yf3v9E7c9hVdAjaLYfgb1F/I1vErvav1e5r07xawuQHj36L+RLaKn+kdrfo379s1YHMHAN6h/kDWjh+pd+2+s/brHrC5BRDvUb8ja8X31LNWv8X6hABs7gHIB9RvyNL4lnqV9qHYHwawuQkwH1G/IqfG19Tjyv6efwgFOIG4SHVKKdk75X3N94QCjC8xPsExS5RJ8Qk9Pk/aSbopDGCAMbA14ISCHAJwRbj5HIaB3D3gBnBDQe4acEO4YSB3C3gGuCEgdwm4AO4XULNEcUW3v5NLALscqrW4BC6+xPhsCS2rgdwVYMC1j0GWYOSKLwnssCndrwJyN4ATXPusO0ByXK7AzfvWArkLwLXhrgkyPeBWcNcCmRpwa7hrgEwLeC640SFTAp4bbmTIdICXguuAnJder5RfhlABXhpuJhbpIxQV4Gyws976OdfZ48byAsg3ei35H1SAJ5jaBG4GwqYn6/JUKsAm3GFqU7imxZJNj2nyJB1gE7+DqbPANS2WbHpM065JCdjEbzF1VrimxZJNj2naJWkBm/hbTF0ErmmxZNNjmu5KasAm/pKpi8I1LZZsekzTtqwIeNtryp6ZqZZlXertNi2W9Tq269QF4Hbjx+8swMEZC7AAB3cg+Hg6wQIc3IHg4+kEC3BwB4rH426gE8zNp1idABdbyN1AgLn5FKsT4GILuRsIMDefYnUCXGwhdwMB5uZTrE6Aiy3kbtAOMPfcq1EnwMFRC7AAB3cg+Hg6wQIc3IHg4+kEC3BwB4KPpxNcGzBZPwEmA1JbjgDXdpSsnwCTAaktR4BrO0rWT4DJgNSWI8C1HSXrJ8BkQGrLEeDajpL1mw0w2dyrkfMfAAD//7elzDkAAAAGSURBVAMA0d+lAH0vjzMAAAAASUVORK5CYII=" />
-                    <input id="height-input" class="game-size-input" type="number" min="1" value="100" />
+                    <input id="height-input" class="game-size-input" type="number" min="1" value="100" onkeydown="if(event.key==='.' || event.key==='e' || event.key==='+' || event.key==='-') event.preventDefault();" />
                 </button>
             </div>
             <div class="button-wrapper hidden" id="join-button-wrapper">
@@ -313,8 +313,8 @@
 
             const endlessButton = document.getElementById("endless-button");
             const finiteButton = document.getElementById("finite-button");
-            const tileWidthInput = document.getElementById("tile-width-input");
-            const tileHeightInput = document.getElementById("tile-height-input");
+            const tileWidthInput = document.getElementById("width-input");
+            const tileHeightInput = document.getElementById("height-input");
             let sizeOptionsDisabled = false;
 
             const joinButtonWrapper = document.getElementById("join-button-wrapper");
@@ -371,6 +371,19 @@
             function toggleButtonSize(button) {
                 if (sizeOptionsDisabled) { return; }
 
+                if (hosting) {
+                    if (button == endlessButton) {
+                        clientConnections.forEach(conn => conn.send({
+                            type: "switchMode",
+                            mode: "endless"
+                        }));
+                    } else if (button == finiteButton) {
+                        clientConnections.forEach(conn => conn.send({
+                            type: "switchMode",
+                            mode: "finite"
+                        }));
+                    }
+                }
                 endlessButton.disabled = false;
                 finiteButton.disabled = false;
                 button.disabled = true;
@@ -413,6 +426,34 @@
 
             endlessButton.addEventListener("click", () => toggleButtonSize(endlessButton));
             finiteButton.addEventListener("click", () => toggleButtonSize(finiteButton));
+
+            tileWidthInput.addEventListener("input", () => {
+                if (hosting) {
+                    clientConnections.forEach(conn => conn.send({
+                        type: "changeGameWidth",
+                        value: tileWidthInput.value
+                    }));
+                }
+                if (tileWidthInput.value < 5 || tileHeightInput.value < 5) {
+                    playButton.disabled = true;
+                } else {
+                    playButton.disabled = false;
+                }
+            });
+
+            tileHeightInput.addEventListener("input", () => {
+                if (hosting) {
+                    clientConnections.forEach(conn => conn.send({
+                        type: "changeGameHeight",
+                        value: tileHeightInput.value
+                    }));
+                }
+                if (tileWidthInput.value < 5 || tileHeightInput.value < 5) {
+                    playButton.disabled = true;
+                } else {
+                    playButton.disabled = false;
+                }
+            });
 
             lobbyIDInput.addEventListener("input", () => {
                 clearTimeout(lobbyIDInputDebounceTimeoutID);
@@ -461,6 +502,14 @@
             });
 
             playButton.addEventListener("click", () => {
+                if (finiteButton.disabled) {
+                    gameSize.tileHeight = tileHeightInput.value;
+                    gameSize.tileWidth = tileWidthInput.value;
+                } else if (endlessButton.disabled) {
+                    gameSize.tileHeight = Infinity;
+                    gameSize.tileWidth = Infinity;
+                }
+
                 if (!hosting) {
                     menuWrapper.classList.add("menu-hidden");
                 } else {
@@ -574,10 +623,28 @@
                 // console.log(data);
 
                 switch (data.type) {
+                    case "switchMode":
+                        if (data.mode == "endless") {
+                            toggleButtonSize(endlessButton);
+                        } else if (data.mode == "finite") {
+                            toggleButtonSize(finiteButton);
+                        }
+                    case "changeGameWidth":
+                        tileWidthInput.value = data.value;
+                    case "changeGameHeight":
+                        tileHeightInput.value = data.value
                     case "startGame":
                         if (gameStarted) break;
 
                         gameStarted = true;
+
+                        if (finiteButton.disabled) {
+                            gameSize.tileHeight = tileHeightInput.value;
+                            gameSize.tileWidth = tileWidthInput.value;
+                        } else if (endlessButton.disabled) {
+                            gameSize.tileHeight = Infinity;
+                            gameSize.tileWidth = Infinity;
+                        }
 
                         menuWrapper.classList.add("menu-hidden");
 
@@ -689,6 +756,20 @@
                             conn.on("open", () => {
                                 conn.on("data", (data) => {
                                     // console.log(data);
+
+                                    // Send preliminary data
+                                    conn.send({
+                                        type: "switchMode",
+                                        mode: endlessButton.disabled ? "endless" : "finite"
+                                    })
+                                    conn.send({
+                                        type: "changeGameWidth",
+                                        value: tileWidthInput.value
+                                    })
+                                    conn.send({
+                                        type: "changeGameHeight",
+                                        value: tileHeightInput.value
+                                    })
 
                                     switch (data.type) {
                                         case "ready":
@@ -827,11 +908,13 @@
                 x: 0,
                 y: 0
             };
-            if (gameSize.tileWidth > 42 && gameSize.tileHeight != Infinity) {
-                cameraCenter.x = Math.round(gameSize.tileWidth * 45 / 2);
+            let scaleFactor = 1.5;
+
+            if (gameSize.tileWidth * 45 > scaleFactor * document.documentElement.clientWidth && gameSize.tileWidth != Infinity) {
+                cameraCenter.x = Math.round((gameSize.tileWidth * 45 - document.documentElement.clientWidth) / 2);
             }
-            if (gameSize.tileHeight > 24 && gameSize.tileWidth != Infinity) {
-                cameraCenter.y = Math.round(gameSize.tileHeight * 45 / 2);
+            if (gameSize.tileHeight * 45 > scaleFactor * document.documentElement.clientHeight && gameSize.tileHeight != Infinity) {
+                cameraCenter.y = Math.round((gameSize.tileHeight * 45 - document.documentElement.clientHeight) / 2);
             }
 
             let initialCameraCenter = {
@@ -870,8 +953,6 @@
                 i: null,
                 j: null
             };
-
-            let scaleFactor = 1.5;
 
             const revealedTiles = new Map();
             const revealedMines = new Map();
@@ -917,9 +998,9 @@
             let fallingFlags = [];
 
             let screenShaking = false;
-            let screenShakeSigns = {
-                x: 1,
-                y: 1
+            let screenShakeOffset = {
+                x: 0,
+                y: 0
             };
 
             let dead = false;
@@ -1321,20 +1402,46 @@
 
             function resizeCanvas() {
                 // Set canvas size depending on size of map
-                if (gameSize.tileWidth < 1.5 * document.documentElement.clientWidth / 45) {
+                const pWidth = canvas.width;
+                const pHeight = canvas.height;
+
+                if (gameSize.tileWidth * 45 < scaleFactor * document.documentElement.clientWidth) {
                     canvas.width = 45 * gameSize.tileWidth;
+                    cameraCenter.x = 0;
                 } else {
                     canvas.width = scaleFactor * document.documentElement.clientWidth;
                 }
 
-                if (gameSize.tileHeight < 1.5 * document.documentElement.clientHeight / 45) {
+                if (gameSize.tileHeight * 45 < scaleFactor * document.documentElement.clientHeight) {
                     canvas.height = 45 * gameSize.tileHeight;
+                    cameraCenter.y = 0;
                 } else {
                     canvas.height = scaleFactor * document.documentElement.clientHeight;
                 }
 
+                if (canvas.width > pWidth && cameraCenter.x + canvas.width > gameSize.tileWidth * 45) cameraCenter.x = gameSize.tileWidth * 45 - canvas.width;
+                if (gameSize.tileWidth != Infinity && cameraCenter.x < 0) cameraCenter.x = 0;
+
+                if (canvas.height > pHeight && cameraCenter.y + canvas.height > gameSize.tileHeight * 45) cameraCenter.y = gameSize.tileHeight * 45 - canvas.height;
+                if (gameSize.tileHeight != Infinity && cameraCenter.y < 0) cameraCenter.y = 0;
+
                 ctx.font = "bold 37px Roboto, Arial, sans-serif";
                 ctx.textAlign = "center";
+            }
+
+            function moveCameraCenter(clientWidth, clientHeight, offsetX, offsetY) {
+                if (gameSize.tileWidth * 45 > scaleFactor * document.documentElement.clientWidth) {
+                    const potentialX = Math.round(initialCameraCenter.x - canvas.width * (offsetX - initialInputPosition.x) / clientWidth);
+                    if (gameSize.tileWidth != Infinity && potentialX < 0) cameraCenter.x = 0;
+                    else if (potentialX + canvas.width > gameSize.tileWidth * 45) cameraCenter.x = gameSize.tileWidth * 45 - canvas.width;
+                    else cameraCenter.x = potentialX;
+                }
+                if (gameSize.tileHeight * 45 > scaleFactor * document.documentElement.clientHeight) {
+                    const potentialY = Math.round(initialCameraCenter.y - canvas.height * (offsetY - initialInputPosition.y) / clientHeight);
+                    if (gameSize.tileHeight != Infinity && potentialY < 0) cameraCenter.y = 0;
+                    else if (potentialY + canvas.height > gameSize.tileHeight * 45) cameraCenter.y = gameSize.tileHeight * 45 - canvas.height;
+                    else cameraCenter.y = potentialY;
+                }
             }
 
             function drawRotatedRect(x, y, width, height, theta, color) {
@@ -1385,8 +1492,16 @@
                 // Get zoom factor
                 const pScaleFactor = scaleFactor;
 
-                if (newMainTouchPosition !== undefined) scaleFactor *= Math.hypot(mainTouchPosition.x - zoomTouchPosition.x, mainTouchPosition.y - zoomTouchPosition.y) / Math.hypot(newMainTouchPosition.x - zoomTouchPosition.x, newMainTouchPosition.y - zoomTouchPosition.y);
-                else if (newZoomTouchPosition !== undefined) scaleFactor *= Math.hypot(mainTouchPosition.x - zoomTouchPosition.x, mainTouchPosition.y - zoomTouchPosition.y) / Math.hypot(mainTouchPosition.x - newZoomTouchPosition.x, mainTouchPosition.y - newZoomTouchPosition.y);
+                if (newMainTouchPosition !== undefined) {
+                    const ds = Math.hypot(mainTouchPosition.x - zoomTouchPosition.x, mainTouchPosition.y - zoomTouchPosition.y) / Math.hypot(newMainTouchPosition.x - zoomTouchPosition.x, newMainTouchPosition.y - zoomTouchPosition.y);
+                    if (ds > 1 && (gameSize.tileWidth * 45 < scaleFactor * document.documentElement.clientWidth || gameSize.tileHeight * 45 < scaleFactor * document.documentElement.clientHeight)) return;
+                    scaleFactor *= ds;
+                }
+                else if (newZoomTouchPosition !== undefined) {
+                    const ds = Math.hypot(mainTouchPosition.x - zoomTouchPosition.x, mainTouchPosition.y - zoomTouchPosition.y) / Math.hypot(mainTouchPosition.x - newZoomTouchPosition.x, mainTouchPosition.y - newZoomTouchPosition.y);                
+                    if (ds > 1 && (gameSize.tileWidth * 45 < scaleFactor * document.documentElement.clientWidth || gameSize.tileHeight * 45 < scaleFactor * document.documentElement.clientHeight)) return;                
+                    scaleFactor *= ds;
+                }
                 
                 if (scaleFactor > 5) {
                     scaleFactor = 5;
@@ -1444,11 +1559,11 @@
                     x: 0,
                     y: 0
                 };
-                if (gameSize.tileWidth > 42 && gameSize.tileHeight != Infinity) {
-                    cameraCenter.x = Math.round(gameSize.tileWidth * 45 / 2);
+                if (gameSize.tileWidth * 45 > scaleFactor * document.documentElement.clientWidth && gameSize.tileWidth != Infinity) {
+                    cameraCenter.x = Math.round((gameSize.tileWidth * 45 - document.documentElement.clientWidth) / 2);
                 }
-                if (gameSize.tileHeight > 24 && gameSize.tileWidth != Infinity) {
-                    cameraCenter.y = Math.round(gameSize.tileHeight * 45 / 2);
+                if (gameSize.tileHeight * 45 > scaleFactor * document.documentElement.clientHeight && gameSize.tileHeight != Infinity) {
+                    cameraCenter.y = Math.round((gameSize.tileHeight * 45 - document.documentElement.clientHeight) / 2);
                 }
 
                 scaleFactor = 1.5;
@@ -1467,6 +1582,8 @@
                 fallingFlags = [];
 
                 screenShaking = false;
+                screenShakeOffset.x = 0;
+                screenShakeOffset.y = 0;
 
                 dead = false;
                 bombageddon = false;
@@ -1652,10 +1769,18 @@
                     // For infinite screen shake
                     const dt = frameTime - screenShaking;
                     if (dt < 1000) {
-                        cameraCenter.x += Math.round(2.5 * screenShakeSigns.x * Math.sin((Math.PI * dt) / 50 + Math.PI) * (1000 - dt) / 1000 + 0.06);
-                        cameraCenter.y += Math.round(2.5 * screenShakeSigns.y * Math.sin((Math.PI * dt) / 40 + Math.PI) * (1000 - dt) / 1000 + 0.04);
+                        const XOffset = (0.2 * 50 / (Math.PI * 1000)) * ((Math.cos(Math.PI * dt / 50) + 1) * (dt - 1000) - 50 * Math.sin(Math.PI * dt / 50) / Math.PI);
+                        const YOffset = (0.2 * 40 / (Math.PI * 1000)) * ((Math.cos(Math.PI * dt / 40) + 1) * (dt - 1000) - 40 * Math.sin(Math.PI * dt / 40) / Math.PI);
+                        const dx = Math.round(XOffset - screenShakeOffset.x);
+                        const dy = Math.round(YOffset - screenShakeOffset.y);
+                        cameraCenter.x += dx;
+                        cameraCenter.y += dy;
+                        screenShakeOffset.x += dx;
+                        screenShakeOffset.y += dy;
                     } else {
                         screenShaking = false;
+                        screenShakeOffset.x = 0;
+                        screenShakeOffset.y = 0;
                     }
                 }
                 
@@ -1882,9 +2007,7 @@
                     initialInputPosition.y = event.offsetY;
                     initialCameraCenter.x = cameraCenter.x;
                     initialCameraCenter.y = cameraCenter.y;
-                    if (gameSize.tileWidth > 42 || gameSize.tileHeight > 24) {
-                        mouseDown = true;
-                    }
+                    mouseDown = true;
                 } else if ((event.button == 2 && hoveredTile.i !== null) || (event.ctrlKey && event.button == 0)) {
                     if (!checkIfTileRevealed(hoveredTile.i, hoveredTile.j) && !checkIfMineRevealed(hoveredTile.i, hoveredTile.j)) {
                         if (checkIfFlagPlanted(hoveredTile.i, hoveredTile.j) === false) {
@@ -1966,10 +2089,7 @@
                     initialCameraCenter.y = cameraCenter.y;
 
                     inputRevealsTile = true;
-
-                    if (gameSize.tileWidth > 42 || gameSize.tileHeight > 24) {
-                        mouseDown = true;
-                    }
+                    mouseDown = true;
                 }
             });
 
@@ -2005,8 +2125,7 @@
                     }
                     
                     if (mouseDown) {
-                        if (gameSize.tileWidth > 42) { cameraCenter.x = Math.round(initialCameraCenter.x - canvas.width * (event.offsetX - initialInputPosition.x) / canvas.clientWidth); }
-                        if (gameSize.tileHeight > 24) { cameraCenter.y = Math.round(initialCameraCenter.y - canvas.height * (event.offsetY - initialInputPosition.y) / canvas.clientHeight); }
+                        moveCameraCenter(canvas.clientWidth, canvas.clientHeight, event.offsetX, event.offsetY);
 
                         if ((Math.abs(event.offsetX - initialInputPosition.x) > 5 || Math.abs(event.offsetY - initialInputPosition.y) > 5)) {
                             inputRevealsTile = false;
@@ -2043,8 +2162,7 @@
                     }
 
                     if (mouseDown) {
-                        if (gameSize.tileWidth > 42) { cameraCenter.x = Math.round(initialCameraCenter.x - canvas.width * (event.offsetX - initialInputPosition.x) / fullscreenDimensions.width); }
-                        if (gameSize.tileHeight > 24) { cameraCenter.y = Math.round(initialCameraCenter.y - canvas.height * (event.offsetY - initialInputPosition.y) / fullscreenDimensions.height); }
+                        moveCameraCenter(fullscreenDimensions.width, fullscreenDimensions.height, event.offsetX, event.offsetY);
                         if ((Math.abs(event.offsetX - initialInputPosition.x) > 5 || Math.abs(event.offsetY - initialInputPosition.y) > 5)) {
                             inputRevealsTile = false;
                         }
@@ -2097,10 +2215,9 @@
                             
                             if (mouseDown) {
                                 if (zoomTouchID == null) {
-                                    if (gameSize.tileWidth > 42) { cameraCenter.x = Math.round(initialCameraCenter.x - canvas.width * (offsetX - initialInputPosition.x) / canvas.clientWidth); }
-                                    if (gameSize.tileHeight > 24) { cameraCenter.y = Math.round(initialCameraCenter.y - canvas.height * (offsetY - initialInputPosition.y) / canvas.clientHeight); }
+                                    moveCameraCenter(canvas.clientWidth, canvas.clientHeight, offsetX, offsetY);
                                 } else {
-                                    if (gameSize.tileWidth > 42 && gameSize.tileHeight > 24) touchZoom({x: offsetX, y: offsetY});
+                                    touchZoom({x: offsetX, y: offsetY});
                                 }
                             }
                         } else {
@@ -2132,10 +2249,9 @@
 
                             if (mouseDown) {
                                 if (zoomTouchID == null) {
-                                    if (gameSize.tileWidth > 42) { cameraCenter.x = Math.round(initialCameraCenter.x - canvas.width * (offsetX - initialInputPosition.x) / fullscreenDimensions.width); }
-                                    if (gameSize.tileHeight > 24) { cameraCenter.y = Math.round(initialCameraCenter.y - canvas.height * (offsetY - initialInputPosition.y) / fullscreenDimensions.height); }
+                                    moveCameraCenter(fullscreenDimensions.width, fullscreenDimensions.height, offsetX, offsetY);
                                 } else {
-                                    if (gameSize.tileWidth > 42 && gameSize.tileHeight > 24) touchZoom({x: offsetX, y: offsetY});
+                                    touchZoom({x: offsetX, y: offsetY});
                                 }
                             }
                         }
@@ -2143,7 +2259,7 @@
                         mainTouchPosition.x = offsetX;
                         mainTouchPosition.y = offsetY;
                     } else if (touch.identifier == zoomTouchID) {
-                        if (mouseDown && mainTouchID !== null && gameSize.tileWidth > 42 && gameSize.tileHeight > 24) touchZoom(undefined, {x: touch.clientX - rect.left, y: touch.clientY - rect.top});
+                        if (mouseDown && mainTouchID !== null) touchZoom(undefined, {x: touch.clientX - rect.left, y: touch.clientY - rect.top});
                         zoomTouchPosition.x = touch.clientX - rect.left;
                         zoomTouchPosition.y = touch.clientY - rect.top;
                     }
@@ -2152,7 +2268,7 @@
 
             canvas.addEventListener("mouseup", (event) => {
                 mouseDown = false;
-
+                
                 if (checkIfFlagPlanted(hoveredTile.i, hoveredTile.j) !== false) {
                     inputRevealsTile = false;
                     return;
@@ -2178,13 +2294,13 @@
                             }
 
                             screenShaking = frameTime;
-                            screenShakeSigns.x = Math.random() >= 0.5 ? 1 : -1;
-                            screenShakeSigns.y = Math.random() >= 0.5 ? 1 : -1;
                         }
 
                         if (!client) {
                             recursiveReveal(hoveredTile.i, hoveredTile.j);
-                            playerStats[0].tilesRevealed++;
+                            if (hosting) {
+                                playerStats[0].tilesRevealed++;
+                            }
                         }
                         else sendRecursiveReveal(hoveredTile.i, hoveredTile.j);
                     }
@@ -2241,8 +2357,6 @@
                                 }
 
                                 screenShaking = frameTime;
-                                screenShakeSigns.x = Math.random() >= 0.5 ? 1 : -1;
-                                screenShakeSigns.y = Math.random() >= 0.5 ? 1 : -1;
                             }
 
                             if (!client) {
