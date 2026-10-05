@@ -111,6 +111,10 @@
                     cursor: not-allowed;
                 }
 
+                &:disabled.actually-disabled {
+                    background-color: #434343;
+                }
+
                 transition: background-color ease-in-out 0.07s;
             }
 
@@ -384,6 +388,7 @@
                         }));
                     }
                 }
+                
                 endlessButton.disabled = false;
                 finiteButton.disabled = false;
                 button.disabled = true;
@@ -629,10 +634,13 @@
                         } else if (data.mode == "finite") {
                             toggleButtonSize(finiteButton);
                         }
+                        break;
                     case "changeGameWidth":
                         tileWidthInput.value = data.value;
+                        break;
                     case "changeGameHeight":
-                        tileHeightInput.value = data.value
+                        tileHeightInput.value = data.value;
+                        break;
                     case "startGame":
                         if (gameStarted) break;
 
