@@ -102,16 +102,16 @@
 
                 border-radius: 8px;
 
-                &:disabled {
+                &.selected {
                     background-color: #3a5b22;
                 }
 
-                &.actually-disabled {
+                &:disabled {
                     background-color: #5a5a5a;
                     cursor: not-allowed;
                 }
 
-                &:disabled.actually-disabled {
+                &:disabled.selected {
                     background-color: #434343;
                 }
 
@@ -203,6 +203,10 @@
                 color: white;
                 text-align: center;
                 font-size: 20px;
+
+                &:disabled {
+                    cursor: not-allowed;
+                }
             }
 
             /* Get rid of spinbox */
@@ -241,20 +245,20 @@
                 <!-- TODO: stats for most tiles broken, etc. -->
             </div>
             <div class="button-wrapper" id="players-button-wrapper">
-                <button class="menu-button" id="singleplayer-button" disabled>
+                <button class="menu-button selected" id="singleplayer-button">
                     <img class="button-img" src="data:image/png;base64,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" />
                 </button>
-                <button class="menu-button actually-disabled" id="join-button">
+                <button class="menu-button" id="join-button" disabled>
                     <img class="button-img" src="data:image/png;base64,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" />
                     <h2>Join</h2>
                 </button>
-                <button class="menu-button actually-disabled" id="host-button">
+                <button class="menu-button" id="host-button" disabled>
                     <img class="button-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4CAYAAAA5ZDbSAAAE2klEQVR4AeydsU4VQRSGuT4CViqVb6AxvoAkFjZEIqVg4gPQ2ZAgMZYGH0FsLIhgZSTBB6AwNpZ2YKzER1j/2R3C5t6Zy8yc2evMuT+Zs7vMPXM45/vYRG28tsAv1QQoWLXehQUKpmDlBJSPxzeYgpUTUD4e32AKVk5A+Xjz+gYr13o5HgVfslD5NIjgpmlWEFuIj4gzBJebgGFjGBlWK0P8hmUVjBmWEF/Q6CHiFeIx4haCy03AsDGMDKtDww6x5E5N280mGI09RQuniIcIrjQCht2pZZlWYexUFsFo6AHq7iG48hDYs0zF1cSC0cgiujhGcOUlcGzZiqqKBeOnv0FwDUNAzFYkGL9h5g8IG8PMxqogsGEZ4zFtjQmOLnI3+gQPxBIQMZYKvhPbLfOjCYgYU3A075kf+K+Cb4SMO+KXk0AIO+QEMUaec0nfYGdRbpZDgILLcTFIJxQ8CNZyilJwOS4G6YSCW6x6LxSs1207GQW3GPReKFiv23YyCm4x6L1QsF637WQU3GLQe6FgvW7bySi4xaD3Ml2w3rnnZjIKVq6agilYOQHl4/ENpmDlBJSPxzeYgpUTUD4e32CXYEV7FKxIpmsUCnZRUbRHwYpkukahYBcVRXsUrEimaxQKdlFRtEfBimS6RqFgFxVFe1GCFc09N6NQsHLVFEzBygkoH49vMAUrJ6B8PL7BFKycgPLx+AYHCK45hYJrthfQOwUHQKo5hYJrthfQOwUHQKo5hYJrthfQ+0wEN/xyEgjwI06ZiWBxlyyQTICCk9HVcVAiuI4J57xLClb+C0DBFKycgPLx+AZTsHICysfjG0zBcgLO/1OGmyM52asr8A2+mtF4RlXfU3BVuuKbpeB4ZlWdoOCqdMU3S8HxzKo6QcFV6YpvloLjmVV1goKr0hXfLAXHM6vqREbBVc3tbLZpmk3ECeKPDfO86Uwe20R+8tmxUlm/pWCLE4Je4nEXcR+xaMM879rPsOVe9vOks+6K+XYpGCwh6Alu2wjf2rY5E5/b/aSzE8UG2KDgDuqL7jb16svx7feLheT087M9U3CH8nZ3m3r15fj2+8VCcvr52Z4puEPZdLepV1+Ob79fLCSnn5/tmYI7lD+729SrL8e33y8WktPPz/ZMwR3KD91t6tWX49vvFwvJ6edne6ZgoByNRm9x20H41o7Nmfh8NEo/O1FsgA0KtlAh0Pw9eA3ffkP8tWGe1+xn2HIv+3nSWXfFfLsU3GMJUfuIe4hFG+Z5v5fifUR+8llv0QwfUHAGiCWXoOCS7WTojYIzQCy5BAWXbCdDb1LBv0J6wD/IczkIhLBDThBj5DmXVPCJsyo3cxIQMZYK/u6dhB/kIiBiLBX8I9cUrOMlIGIsEoy/3H9CW0cIrmEIHFnGydVFgu1PfW7vvOUnIGYrFozfsDPMtY7gyktg3bIVVRULNj8djbzHfRnBlYfAsmUqrpZFsOkCDX3F/TriHYIrjYBhd92yTKswdiqbYFMXjZ0jnuF5FfEa8RnxG8HlJmDYGEaG1aphhzh3p6btZhV80QKaPEBsIR4hbiLmZ8VNatgYRobVwQW/nPdBBOdskLVkBChYxq/40xRcvCJZgxQs41f8aQouXpGsQQqW8Sv+NAUXr0jWIAXL+BV/emaCiyehtMF/AAAA///FHiedAAAABklEQVQDAFI2IS0+wHzzAAAAAElFTkSuQmCC" />
                     <h2>Host</h2>
                 </button>
             </div>
             <div class="button-wrapper">
-                <button class="menu-button" id="endless-button" disabled>
+                <button class="menu-button selected" id="endless-button">
                     <img class="button-img" src="data:image/png;base64,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" />
                     <h2>Endless</h2>
                 </button>
@@ -266,7 +270,7 @@
             </div>
             <div class="button-wrapper hidden" id="join-button-wrapper">
                 <input type="number" placeholder="Lobby ID" id="lobby-id-input"/>
-                <button class="menu-button actually-disabled" id="ready-button" disabled>
+                <button class="menu-button" id="ready-button" disabled>
                     <img class="button-img" src="data:image/png;base64,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" />
                     <h2>Ready</h2>
                 </button>
@@ -337,13 +341,13 @@
             const statsButton = document.getElementById("stats-button");
 
             function toggleButtonPlayers(button) {
-                if (joinButton.disabled && button != joinButton) {
+                if (joinButton.classList.contains("selected") && button != joinButton) {
                     sizeOptionsDisabled = false;
 
                     endlessButton.disabled = false;
-                    endlessButton.classList.remove("actually-disabled");
                     finiteButton.disabled = false;
-                    finiteButton.classList.remove("actually-disabled");
+                    tileWidthInput.disabled = false;
+                    tileHeightInput.disabled = false;
 
                     hostButtonWrapper.classList.remove("hidden");
                     joinButtonWrapper.classList.add("hidden");
@@ -352,13 +356,16 @@
                     ready = false;
                     if (serverConnection) serverConnection.close();
 
-                } else if (hostButton.disabled && button != hostButton) {
+                } else if (hostButton.classList.contains("selected") && button != hostButton) {
                     lobbyIDDiv.classList.add("hidden");
                     readyPlayersDiv.classList.add("hidden");
 
                     playButton.style.flex = "";
-                    playButton.disabled = false;
-                    playButton.classList.remove("actually-disabled");
+                    if (!finiteButton.classList.contains("selected") || (gameSize.tileWidth >= 10 && gameSize.tileHeight >= 10)) {
+                        playButton.disabled = false;
+                    } else {
+                        playButton.disabled = true;
+                    }
                     playButton.children[playButton.children.length - 1].classList.remove("hidden");
 
                     hosting = false;
@@ -366,14 +373,14 @@
                     clientConnections = [];
                 }
 
-                singleplayerButton.disabled = false;
-                joinButton.disabled = false;
-                hostButton.disabled = false;
-                button.disabled = true;
+                singleplayerButton.classList.remove("selected");
+                joinButton.classList.remove("selected");
+                hostButton.classList.remove("selected");
+                button.classList.add("selected");
             }
 
             function toggleButtonSize(button) {
-                if (sizeOptionsDisabled) { return; }
+                if (sizeOptionsDisabled && !client) { return; }
 
                 if (hosting) {
                     if (button == endlessButton) {
@@ -388,23 +395,23 @@
                         }));
                     }
                 }
-                
-                endlessButton.disabled = false;
-                finiteButton.disabled = false;
-                button.disabled = true;
+
+                endlessButton.classList.remove("selected");
+                finiteButton.classList.remove("selected");
+                button.classList.add("selected");
             }
 
             singleplayerButton.addEventListener("click", () => toggleButtonPlayers(singleplayerButton));
             
             joinButton.addEventListener("click", () => {
-                if (joinButton.classList.contains("actually-disabled")) { return; }
+                if (joinButton.classList.contains("selected")) return;
 
                 toggleButtonPlayers(joinButton);
 
                 endlessButton.disabled = true;
-                endlessButton.classList.add("actually-disabled");
                 finiteButton.disabled = true;
-                finiteButton.classList.add("actually-disabled");
+                tileWidthInput.disabled = true;
+                tileHeightInput.disabled = true;
 
                 hostButtonWrapper.classList.add("hidden");
                 joinButtonWrapper.classList.remove("hidden");
@@ -414,7 +421,7 @@
             });
 
             hostButton.addEventListener("click", () => {
-                if (hostButton.classList.contains("actually-disabled")) { return; }
+                if (hostButton.classList.contains("selected")) return;
 
                 toggleButtonPlayers(hostButton);
 
@@ -422,15 +429,14 @@
                 readyPlayersDiv.classList.remove("hidden");
 
                 playButton.style.flex = "unset";
-                playButton.disabled = false;
-                playButton.classList.add("actually-disabled");
+                playButton.disabled = true;
                 playButton.children[playButton.children.length - 1].classList.add("hidden");
 
                 hosting = true;
             });
 
-            endlessButton.addEventListener("click", () => toggleButtonSize(endlessButton));
-            finiteButton.addEventListener("click", () => toggleButtonSize(finiteButton));
+            endlessButton.addEventListener("click", () => {if (!endlessButton.classList.contains("selected")) toggleButtonSize(endlessButton)});
+            finiteButton.addEventListener("click", () => {if (!finiteButton.classList.contains("selected")) toggleButtonSize(finiteButton)});
 
             tileWidthInput.addEventListener("input", () => {
                 if (hosting) {
@@ -439,9 +445,9 @@
                         value: tileWidthInput.value
                     }));
                 }
-                if (tileWidthInput.value < 5 || tileHeightInput.value < 5) {
+                if (tileWidthInput.value < 10 || tileHeightInput.value < 10) {
                     playButton.disabled = true;
-                } else {
+                } else if (!hosting || (readyPlayers == clientConnections.length && clientConnections.length != 0)) {
                     playButton.disabled = false;
                 }
             });
@@ -453,9 +459,9 @@
                         value: tileHeightInput.value
                     }));
                 }
-                if (tileWidthInput.value < 5 || tileHeightInput.value < 5) {
+                if (tileWidthInput.value < 10 || tileHeightInput.value < 10) {
                     playButton.disabled = true;
-                } else {
+                } else if (!hosting || (readyPlayers == clientConnections.length && clientConnections.length != 0)) {
                     playButton.disabled = false;
                 }
             });
@@ -469,7 +475,6 @@
                         else {
                             serverConnection.close();
                             readyButton.disabled = true;
-                            readyButton.classList.add("actually-disabled");
                         }
                     }
 
@@ -477,12 +482,10 @@
 
                     serverConnection.on("open", () => {
                         readyButton.disabled = false;
-                        readyButton.classList.remove("actually-disabled");
                     });
                     
                     serverConnection.on("close", () => {
                         readyButton.disabled = true;
-                        readyButton.classList.add("actually-disabled");
                         serverConnection = undefined;
                     });
                     serverConnection.on('data', processServerData);
@@ -507,54 +510,56 @@
             });
 
             playButton.addEventListener("click", () => {
-                if (finiteButton.disabled) {
+                if (client) return;
+
+                if (finiteButton.classList.contains("selected")) {
                     gameSize.tileHeight = tileHeightInput.value;
                     gameSize.tileWidth = tileWidthInput.value;
-                } else if (endlessButton.disabled) {
+                } else if (endlessButton.classList.contains("selected")) {
                     gameSize.tileHeight = Infinity;
                     gameSize.tileWidth = Infinity;
                 }
+                resizeCanvas();
 
-                if (!hosting) {
-                    menuWrapper.classList.add("menu-hidden");
-                } else {
-                    if (readyPlayers == clientConnections.length && !gameStarted) {
-                        gameStarted = true;
+                if (hosting && readyPlayers == clientConnections.length && !gameStarted) {
+                    gameStarted = true;
 
-                        peerIDsToIndexDict[peer.id] = 0;
+                    peerIDsToIndexDict[peer.id] = 0;
+                    playerStats.push({
+                        peer: peer.id,
+                        tilesRevealed: 0
+                    });
+
+                    clientConnections.forEach((conn, index) => {
+                        clientConnectionIDs.push(conn.peer);
+                        peerIDsToIndexDict[conn.peer] = index + 1;
+
+                        const clientFlagData = newHueShiftedFlag(conn.peer);
+                        flagSpriteSheets.push(clientFlagData[0]);
+                        hoveredTileColors.push(clientFlagData[1]);
+                        playerFlags.push(clientFlagData[2]);
+
+                        hoveredTiles.push({
+                            i: null,
+                            j: null
+                        });
                         playerStats.push({
-                            peer: peer.id,
+                            peer: conn.peer,
                             tilesRevealed: 0
                         });
+                    });
 
-                        clientConnections.forEach((conn, index) => {
-                            clientConnectionIDs.push(conn.peer);
-                            peerIDsToIndexDict[conn.peer] = index + 1;
-
-                            const clientFlagData = newHueShiftedFlag(conn.peer);
-                            flagSpriteSheets.push(clientFlagData[0]);
-                            hoveredTileColors.push(clientFlagData[1]);
-                            playerFlags.push(clientFlagData[2]);
-
-                            hoveredTiles.push({
-                                i: null,
-                                j: null
-                            });
-                            playerStats.push({
-                                peer: conn.peer,
-                                tilesRevealed: 0
-                            });
+                    clientConnections.forEach(conn => {
+                        conn.send({
+                            type: "startGame",
+                            peerIDs: clientConnectionIDs,
+                            gameSize: gameSize
                         });
-
-                        menuWrapper.classList.add("menu-hidden");
-
-                        clientConnections.forEach(conn => {
-                            conn.send({ type: "startGame", peerIDs: clientConnectionIDs });
-                        });
-
-                    }
+                    });
                     
                 }
+
+                menuWrapper.classList.add("menu-hidden");
             });
 
             resetButton.addEventListener("click", () => {
@@ -625,7 +630,7 @@
             }
 
             function processServerData(data) {
-                // console.log(data);
+                console.log(data);
 
                 switch (data.type) {
                     case "switchMode":
@@ -645,14 +650,8 @@
                         if (gameStarted) break;
 
                         gameStarted = true;
-
-                        if (finiteButton.disabled) {
-                            gameSize.tileHeight = tileHeightInput.value;
-                            gameSize.tileWidth = tileWidthInput.value;
-                        } else if (endlessButton.disabled) {
-                            gameSize.tileHeight = Infinity;
-                            gameSize.tileWidth = Infinity;
-                        }
+                        gameSize = data.gameSize;
+                        resizeCanvas();
 
                         menuWrapper.classList.add("menu-hidden");
 
@@ -733,8 +732,8 @@
                     lobbyIDDiv.children[lobbyIDDiv.children.length - 1].textContent = peerID;
 
                     peer.on("open", () => {
-                        joinButton.classList.remove("actually-disabled");
-                        hostButton.classList.remove("actually-disabled");
+                        joinButton.disabled = false
+                        hostButton.disabled = false;
                     });
 
                     peer.on("connection", (conn) => {
@@ -743,7 +742,6 @@
                             conn.ready = false;
 
                             readyPlayersDiv.children[readyPlayersDiv.children.length - 1].textContent = `${readyPlayers}/${clientConnections.length}`;
-                            playButton.classList.add("actually-disabled");
                             playButton.disabled = true;
 
                             conn.on("close", () => {
@@ -752,32 +750,30 @@
 
                                 readyPlayersDiv.children[readyPlayersDiv.children.length - 1].textContent = `${readyPlayers}/${clientConnections.length}`;
                                 
-                                if (readyPlayers == clientConnections.length) {
-                                    playButton.classList.remove("actually-disabled");
+                                if (readyPlayers == clientConnections.length && clientConnections.length != 0 && gameSize.tileHeight >= 10 && gameSize.tileWidth >= 10) {
                                     playButton.disabled = false;
                                 } else {
-                                    playButton.classList.add("actually-disabled");
                                     playButton.disabled = true;
                                 }
                             })
 
                             conn.on("open", () => {
-                                conn.on("data", (data) => {
-                                    // console.log(data);
+                                // Send preliminary data
+                                conn.send({
+                                    type: "switchMode",
+                                    mode: endlessButton.classList.contains("selected") ? "endless" : "finite"
+                                })
+                                conn.send({
+                                    type: "changeGameWidth",
+                                    value: tileWidthInput.value
+                                })
+                                conn.send({
+                                    type: "changeGameHeight",
+                                    value: tileHeightInput.value
+                                })
 
-                                    // Send preliminary data
-                                    conn.send({
-                                        type: "switchMode",
-                                        mode: endlessButton.disabled ? "endless" : "finite"
-                                    })
-                                    conn.send({
-                                        type: "changeGameWidth",
-                                        value: tileWidthInput.value
-                                    })
-                                    conn.send({
-                                        type: "changeGameHeight",
-                                        value: tileHeightInput.value
-                                    })
+                                conn.on("data", (data) => {
+                                    // console.log(data);                                    
 
                                     switch (data.type) {
                                         case "ready":
@@ -786,14 +782,11 @@
 
                                             conn.ready = data.ready;
 
-                                            if (readyPlayers == clientConnections.length) {
-                                                playButton.classList.remove("actually-disabled");
+                                            if (readyPlayers == clientConnections.length && gameSize.tileHeight > 10 && gameSize.tileWidth > 10) {
                                                 playButton.disabled = false;
                                             } else {
-                                                playButton.classList.add("actually-disabled");
                                                 playButton.disabled = true;
                                             }
-
                                             readyPlayersDiv.children[readyPlayersDiv.children.length - 1].textContent = `${readyPlayers}/${clientConnections.length}`;
                                             break;
 
@@ -1128,9 +1121,10 @@
                     }));
                 }
 
+                if (checkIfTileOutOfBounds(i, j)) return;
                 revealTile(i, j);
 
-                if (checkIfMineAt(i, j)) { return; }
+                if (checkIfMineAt(i, j)) return;
 
                 if (getRevealedTileAdjacentMines(i, j) == 0) {
                     for (let potentialI = i - 1; potentialI < i + 2; potentialI++) {
@@ -1264,6 +1258,12 @@
                 return revealedTiles.has(i) && revealedTiles.get(i).has(j);
             }
 
+            function checkIfTileOutOfBounds(i, j) {
+                if (gameSize.tileHeight == Infinity || gameSize.tileWidth == Infinity) return false;
+                else if (i < 0 || i > gameSize.tileWidth - 1 || j < 0 || j > gameSize.tileHeight - 1) return true;
+                else return false;
+            }
+
             function sendRemoveFlag(i, j) {
                 serverConnection.send({
                     type: 'removeFlag',
@@ -1315,6 +1315,10 @@
             }
 
             function checkIfMineAt(i, j) {
+                if (checkIfTileOutOfBounds(i, j)) {
+                    return false;
+                }
+
                 return hash(`${i}+${j}`) < 0.2;
             }
 
@@ -1884,38 +1888,37 @@
                             }
 
                             ctx.fillStyle = "#87af3a";
-                            if (!checkIfTileRevealed(i, j + 1)) {
+                            if (!checkIfTileRevealed(i, j + 1) && !checkIfTileOutOfBounds(i, j + 1)) {
                                 ctx.fillRect(i * 45 - cameraCenter.x, j * 45 - cameraCenter.y + 41, 45, 4);
                                 bottomLeftOccupied = true;
                                 bottomRightOccupied = true;
                             }
-                            if (!checkIfTileRevealed(i, j - 1)) {
+                            if (!checkIfTileRevealed(i, j - 1) && !checkIfTileOutOfBounds(i, j - 1)) {
                                 ctx.fillRect(i * 45 - cameraCenter.x, j * 45 - cameraCenter.y, 45, 4);
                                 topLeftOccupied = true;
                                 topRightOccupied = true;
                             }
-                            if (!checkIfTileRevealed(i + 1, j)) {
+                            if (!checkIfTileRevealed(i + 1, j) && !checkIfTileOutOfBounds(i + 1, j)) {
                                 ctx.fillRect(i * 45 - cameraCenter.x + 41, j * 45 - cameraCenter.y, 4, 45);
                                 topRightOccupied = true;
                                 bottomRightOccupied = true;
                             }
-                            if (!checkIfTileRevealed(i - 1, j)) {
+                            if (!checkIfTileRevealed(i - 1, j) && !checkIfTileOutOfBounds(i - 1, j)) {
                                 ctx.fillRect(i * 45 - cameraCenter.x, j * 45 - cameraCenter.y, 4, 45);
                                 topLeftOccupied = true;
                                 bottomLeftOccupied = true;
                             }
 
-                            if (!topLeftOccupied && !checkIfTileRevealed(i - 1, j - 1)) {
-                                
+                            if (!topLeftOccupied && !checkIfTileRevealed(i - 1, j - 1) && !checkIfTileOutOfBounds(i - 1, j - 1)) {
                                 ctx.fillRect(i * 45 - cameraCenter.x, j * 45 - cameraCenter.y, 4, 4);
                             }
-                            if (!topRightOccupied && !checkIfTileRevealed(i + 1, j - 1)) {
+                            if (!topRightOccupied && !checkIfTileRevealed(i + 1, j - 1) && !checkIfTileOutOfBounds(i + 1, j - 1)) {
                                 ctx.fillRect(i * 45 - cameraCenter.x + 41, j * 45 - cameraCenter.y, 4, 4);
                             }
-                            if (!bottomLeftOccupied && !checkIfTileRevealed(i - 1, j + 1)) {
+                            if (!bottomLeftOccupied && !checkIfTileRevealed(i - 1, j + 1) && !checkIfTileOutOfBounds(i - 1, j + 1)) {
                                 ctx.fillRect(i * 45 - cameraCenter.x, j * 45 - cameraCenter.y + 41, 4, 4);
                             }
-                            if (!bottomRightOccupied && !checkIfTileRevealed(i + 1, j + 1)) {
+                            if (!bottomRightOccupied && !checkIfTileRevealed(i + 1, j + 1) && !checkIfTileOutOfBounds(i + 1, j + 1)) {
                                 ctx.fillRect(i * 45 - cameraCenter.x + 41, j * 45 - cameraCenter.y + 41, 4, 4);
                             }
 
